@@ -1,5 +1,6 @@
 package com.example.groupproject.controller;
 
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.example.groupproject.model.Post;
@@ -53,6 +54,7 @@ public class DatabaseController {
                 if (temp.isEmpty()) { //if it's a new user && username is unique:
                     collectionReference.document(machineCode).set(newuser);
                 } else {
+                    //if success is false, maybe the user is login from a new device, logout required in callback
                     success = false;
                 }
                     databaseCallback.successlistener(success);
@@ -172,6 +174,29 @@ public class DatabaseController {
      * Return a list of post based on username, return in databaseCallback
      */
     public void getPosts(DatabaseCallback databaseCallback, String username) {
+
+    }
+
+    /**
+     * Mostly for admin method or by user's request; Delete user data
+     */
+    public void deleteUser(DatabaseCallback databaseCallback, String machineCode) {
+
+    }
+
+    /**
+     * Delete original user's machine code, update it with new code
+     * @param databaseCallback
+     * @param username
+     */
+    public void logoutUser(DatabaseCallback databaseCallback, String username) {
+
+    }
+
+    /**
+     * Delete a post with given post id
+     */
+    public  void deletePost(DatabaseCallback databaseCallback, String postid) {
 
     }
 }
