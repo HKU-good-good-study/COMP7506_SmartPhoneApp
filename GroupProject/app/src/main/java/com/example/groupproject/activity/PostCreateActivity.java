@@ -1,8 +1,10 @@
-package com.example.groupproject;
+package com.example.groupproject.activity;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.groupproject.R;
 
 public class PostCreateActivity extends AppCompatActivity {
     @Override
