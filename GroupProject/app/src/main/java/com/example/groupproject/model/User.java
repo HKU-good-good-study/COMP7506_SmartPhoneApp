@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class User {
     private String username;
-
+    private String password;
     private ArrayList<Object> postList;
     private String email;
     private Boolean owner;
@@ -12,7 +12,16 @@ public class User {
 
     public User() {} //For deserializing the class....
 
-    public User(String username, ArrayList<Object> postList, String email, Boolean owner, String machineCode) {
+    public User(String username, String password, ArrayList<Object> postList, String email, Boolean owner, String machineCode) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.machineCode = machineCode;
+        this.postList = postList;
+        this.owner = owner;
+    }
+
+    public User(String username,  ArrayList<Object> postList, String email, Boolean owner, String machineCode) {
         this.username = username;
         this.email = email;
         this.machineCode = machineCode;

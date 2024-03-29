@@ -155,9 +155,10 @@ public class DatabaseController {
     }
 
     /**
+     * TODO:
+     *  return a user based on username, return in databaseCallback
+     *  Make sure get password as well!
      *
-     * TODO: return a user based on username, return in databaseCallback
-     *  This method should not touch machine code!
      */
     public void  getUser(DatabaseCallback databaseCallback, List<Object> result, String username) {
 
