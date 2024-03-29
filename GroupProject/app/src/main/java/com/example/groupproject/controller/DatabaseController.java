@@ -1,26 +1,20 @@
 package com.example.groupproject.controller;
 
-import android.media.MediaPlayer;
 import android.util.Log;
 
 import com.example.groupproject.model.Post;
 import com.example.groupproject.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-
-import javax.annotation.Nullable;
 
 public class DatabaseController {
     private static User currentUser;
@@ -48,7 +42,7 @@ public class DatabaseController {
     public void createUser(DatabaseCallback databaseCallback,  User newuser){
         String machineCode = newuser.getMachineCode();
         CollectionReference collectionReference = db.collection("User");
-        List<Map> temp = new ArrayList<Map>();
+        List<Object> temp = new ArrayList<Object>();
 
         Query task = collectionReference.whereEqualTo("username", newuser.getUsername());
         task.get().addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask -> {
@@ -98,15 +92,42 @@ public class DatabaseController {
      * TODO:
      *  Generate unqiue post id to assign
      *  Save post to Firestore with given info
-     *
+     *  return in databaseCallback once finished
      */
-    public void createPost() {
+    public void createPost(DatabaseCallback databaseCallback, Post post) {
+        String id = java.util.UUID.randomUUID().toString(); //generate unique id
+        CollectionReference collectionReference = db.collection("Post");
+        collectionReference
+                .whereEqualTo("id",id)
+                .get()
+                .addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask -> {
+            if (runningTask.isSuccessful()) {
+                if (runningTask.getResult().isEmpty()){ //if id is unique
+                    post.setId(id);
+                    collectionReference.document(id).set(post);
+                    databaseCallback.successlistener(true);
+                } else {
+                    databaseCallback.successlistener(false);
+                }
+            }
+        });
+    }
+
+    /**
+     * TODO:
+     *  Update a given post with post ID
+     *  return in databaseCallback once it's finished
+     * @param databaseCallback
+     * @param postId
+     * @param post
+     */
+    public void udpatePost(DatabaseCallback databaseCallback, String postId, Post post) {
 
     }
 
     /**
      * TODO:
-     *  return current user, check if current user has already loaded or not
+     *  return current ser in databaseCallback check if current user has already loaded or not
      *  if loaded return current user, otherwise ask firestore with user's machine code
      */
     public void getCurrentUser(DatabaseCallback databaseCallback, String machineCode){
@@ -133,7 +154,7 @@ public class DatabaseController {
 
     /**
      *
-     * TODO: return a user based on username
+     * TODO: return a user based on username, return in databaseCallback
      *  This method should not touch machine code!
      */
     public void  getUser(DatabaseCallback databaseCallback, List<Object> result, String username) {
@@ -141,14 +162,14 @@ public class DatabaseController {
     }
 
     /**
-     * Return a post based on post id
+     * Return a post based on post id, return in databaseCallback
      */
-    public void getPost() {
+    public void getPost(DatabaseCallback databaseCallback, String id) {
 
     }
 
     /**
-     * Return a list of post based on username
+     * Return a list of post based on username, return in databaseCallback
      */
     public void getPosts(DatabaseCallback databaseCallback, String username) {
 

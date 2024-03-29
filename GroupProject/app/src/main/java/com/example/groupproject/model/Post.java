@@ -26,6 +26,14 @@ public class Post {
          this.photo = photo;
     }
 
+    public Post(String user, String location, HashMap<String, ArrayList<String>> comments, ArrayList <Bitmap> photo, Boolean isPublic){
+        this.user = user;
+        this.isPublic = isPublic;
+        this.location = location;
+        this.comments = comments;
+        this.photo = photo;
+    }
+
     public String getUser() {
         return user;
     }
