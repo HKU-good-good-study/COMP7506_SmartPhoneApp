@@ -15,6 +15,8 @@ public class Post {
     // multiple pics under one post
     private ArrayList<Bitmap> photo;
 
+    public Post() {} //For deserializing the class....
+
     public Post(String id,String user, String location, HashMap<String, ArrayList<String>> comments, ArrayList <Bitmap> photo, Boolean isPublic){
          this.id = id;
          this.user = user;

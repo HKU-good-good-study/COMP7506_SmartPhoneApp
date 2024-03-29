@@ -10,9 +10,12 @@ public class User {
     private Boolean owner;
     private String machineCode;
 
-    public User(String username, ArrayList<Object> postList, String email, Boolean owner) {
+    public User() {} //For deserializing the class....
+
+    public User(String username, ArrayList<Object> postList, String email, Boolean owner, String machineCode) {
         this.username = username;
         this.email = email;
+        this.machineCode = machineCode;
         this.postList = postList;
         this.owner = owner;
     }
