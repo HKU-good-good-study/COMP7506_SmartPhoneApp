@@ -138,12 +138,12 @@ public class DatabaseController {
     /**
      * Mostly for admin method or by user's request; Delete user data
      */
-    public void deleteUser(DatabaseCallback databaseCallback, String machineCode) {
-        deleteData(databaseCallback, "User", machineCode);
+    public void deleteUser(DatabaseCallback databaseCallback, String username) {
+        deleteData(databaseCallback, "User", username);
     }
 
     /**
-     * Delete original user's machine code
+     * Delete original user's machine code and update machine code from a new device
      * @param databaseCallback Callback class once Firestore replies
      * @param username a String value stands for username to search user for
      */
