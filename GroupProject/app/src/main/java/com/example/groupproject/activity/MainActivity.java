@@ -19,9 +19,11 @@ import android.widget.Toast;
 import com.example.groupproject.R;
 import com.example.groupproject.controller.DatabaseCallback;
 import com.example.groupproject.controller.DatabaseController;
+import com.example.groupproject.model.Post;
 import com.example.groupproject.model.User;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,8 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        Intent postCreate = new Intent(this, PostListActivity.class);
-        this.startActivity(postCreate);
+
 
         usernameDisplay = findViewById(R.id.username_display);
 
@@ -65,6 +66,9 @@ public class MainActivity extends AppCompatActivity {
             public void run(List<Object> dataList) { //Used for fetch user
                 User currentUser = (User) dataList.get(0);
                 usernameDisplay.setText(currentUser.getUsername());
+
+
+
             }
 
             @Override
@@ -72,12 +76,15 @@ public class MainActivity extends AppCompatActivity {
                 if (success) {
                     Toast.makeText(getContext(),"User is created", Toast.LENGTH_SHORT).show();
                 } else {
+                    Intent postCreate = new Intent(getContext(), PostListActivity.class);
+                    getContext().startActivity(postCreate);
                     Toast.makeText(getContext(),"Username conflict!", Toast.LENGTH_SHORT).show();
                 }
             }
         };
 
-//        db.createUser(databaseCallback, new User("firstuser2",new ArrayList<>(), "123.com", false, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID)));
+        db.createUser(databaseCallback, new User("111",new ArrayList<>(), "123.com", false, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID)));
+//        db.createPost(databaseCallback, new Post("111","somewhere", new HashMap<>(),null, true));
 //        db.getCurrentUser(databaseCallback, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 //        db.logoutUser(databaseCallback, "firstuser2",Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 //        db.deleteUser(databaseCallback, "203a5e7037811ed9");

@@ -1,7 +1,6 @@
 package com.example.groupproject.activity;
 
 import android.content.Context;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,19 +10,21 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.groupproject.R;
-
-import org.w3c.dom.Text;
+import com.example.groupproject.model.Post;
+import com.example.groupproject.model.User;
+import com.example.groupproject.model.UsersModel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
 
     Context context;
-    ArrayList<UsersModel> usersList;
+    ArrayList<Post> postList;
 
-    public RecyclerViewAdapter(Context context, ArrayList<UsersModel> usersList) {
+    public RecyclerViewAdapter(Context context, ArrayList<Post> postList) {
         this.context = context;
-        this.usersList = usersList;
+        this.postList = postList;
     }
 
     @NonNull
@@ -35,12 +36,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewAdapter.MyViewHolder holder, int position) {
-        holder.textView.setText(usersList.get(position).getUser());
+        holder.textView.setText(postList.get(position).getId());
     }
 
     @Override
     public int getItemCount() {
-        return this.usersList.size();
+        return this.postList.size();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{

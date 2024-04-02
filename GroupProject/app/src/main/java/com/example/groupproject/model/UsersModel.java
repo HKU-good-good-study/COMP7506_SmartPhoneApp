@@ -1,4 +1,4 @@
-package com.example.groupproject.activity;
+package com.example.groupproject.model;
 
 public class UsersModel {
     private String User;
