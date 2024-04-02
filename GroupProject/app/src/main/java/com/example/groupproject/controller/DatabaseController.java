@@ -125,20 +125,26 @@ public class DatabaseController {
     public void getPosts(DatabaseCallback databaseCallback, String username) {
         List<Object> temp = new ArrayList<Object>();
         CollectionReference userCollectionReference = db.collection("User");
-        User user = userCollectionReference.document(username).get().getResult().toObject(User.class);
+        userCollectionReference.document(username).get().addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) runningTask-> {
+            if (runningTask.isSuccessful()) {
+                User user = runningTask.getResult().toObject(User.class);
 
-        CollectionReference postCollectionReference = db.collection("Post");
-        if (user != null){ //if user if found, retrieve all posts belonged to this user:
-            postCollectionReference.whereIn(FieldPath.documentId(), user.getPostList())
-                    .get()
-                    .addOnCompleteListener( (OnCompleteListener<QuerySnapshot>) runningTask-> {
-                        if (runningTask.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : runningTask.getResult()) {
-                                temp.add(document.toObject(Post.class));
-                            }
-                        }
-                    });
-        }
+                CollectionReference postCollectionReference = db.collection("Post");
+                if (user != null){ //if user if found, retrieve all posts belonged to this user:
+                    postCollectionReference.whereIn(FieldPath.documentId(), user.getPostList())
+                            .get()
+                            .addOnCompleteListener( (OnCompleteListener<QuerySnapshot>) subtask-> {
+                                if (subtask.isSuccessful()) {
+                                    for (QueryDocumentSnapshot document : subtask.getResult()) {
+                                        temp.add(document.toObject(Post.class));
+                                    }
+                                }
+                            });
+                }
+            }
+        });
+
+
         databaseCallback.run(temp);
     }
 

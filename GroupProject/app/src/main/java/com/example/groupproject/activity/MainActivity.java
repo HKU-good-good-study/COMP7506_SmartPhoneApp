@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-//        db.createUser(databaseCallback, new User("firstuser2",new ArrayList<>(), "123.com", false, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID)));
+        db.createUser(databaseCallback, new User("firstuser5",new ArrayList<>(), "123.com", false, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID)));
 //        db.getCurrentUser(databaseCallback, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 //        db.logoutUser(databaseCallback, "firstuser2",Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 //        db.deleteUser(databaseCallback, "203a5e7037811ed9");
