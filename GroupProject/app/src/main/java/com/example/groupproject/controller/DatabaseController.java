@@ -34,11 +34,7 @@ public class DatabaseController {
     }
 
     /**
-     * TODO:
-     *  Ask firestore to save user with given info
-     *  Check datatype
-     *  Check given username is unique or not
-     *  If successful, return true; false otherwise
+     *
      */
     public void createUser(DatabaseCallback databaseCallback,  User newuser){
         String machineCode = newuser.getMachineCode();
@@ -52,7 +48,7 @@ public class DatabaseController {
                 for (QueryDocumentSnapshot document : runningTask.getResult()) //fetching from database
                     temp.add(document.getData());
                 if (temp.isEmpty()) { //if it's a new user && username is unique:
-                    collectionReference.document(machineCode).set(newuser);
+                    collectionReference.document(newuser.getUsername()).set(newuser);
                 } else {
                     //if success is false, maybe the user is login from a new device, logout required in callback
                     success = false;
@@ -60,34 +56,6 @@ public class DatabaseController {
                     databaseCallback.successlistener(success);
             }
         });
-    }
-
-    /**
-     * Update Location, Post and User with given field and identifier
-     * For updating user, give machineCode and update field then update value
-     * For Location, give location index and update field and update value
-     * For Post update, give post id and given field then value
-     * @param object: which object updating to : User/Location/Post
-     * @param databaseCallback : Callback made from Activity or Controller that asks for update in database
-     * @param updateField: which field needs to be updated
-     * @param updateValue: what value to be assigned to
-     */
-    public void updateData (DatabaseCallback databaseCallback,String object , String identifierField, String identifierValue, String updateField, Object updateValue){
-        CollectionReference collectionReference = db.collection(object);
-        List<Map> temp = new ArrayList<Map>();
-        Query task = collectionReference.whereEqualTo(identifierField, identifierValue);
-        task.get().addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask-> {
-            boolean success = true;
-            if (runningTask.isSuccessful()) {
-                for (QueryDocumentSnapshot document: runningTask.getResult())
-                    temp.add(document.getData());
-                if (!temp.isEmpty()) { //The record needs to be updated is found
-                    collectionReference.document(identifierValue).update(updateField, updateValue);
-                }
-                databaseCallback.successlistener(success);
-            }
-        });
-
     }
 
     /**
@@ -116,27 +84,16 @@ public class DatabaseController {
     }
 
     /**
-     * TODO:
-     *  Update a given post with post ID
-     *  return in databaseCallback once it's finished
-     * @param databaseCallback
-     * @param postId
-     * @param post
-     */
-    public void udpatePost(DatabaseCallback databaseCallback, String postId, Post post) {
-
-    }
-
-    /**
-     * TODO:
-     *  return current ser in databaseCallback check if current user has already loaded or not
-     *  if loaded return current user, otherwise ask firestore with user's machine code
+     * Fetch current userdata based on macineCode of current phone
+     * Add the returned current user to a temporary list as return in callback function
+     * @param databaseCallback call back class that runs once Firestore replies
+     * @param machineCode A String stands for current phone's id to fetch current user
      */
     public void getCurrentUser(DatabaseCallback databaseCallback, String machineCode){
         List<Object> temp = new ArrayList<Object>();
         Log.e("DBController :", "MachineCode = "+machineCode);
         if (currentUser == null) {
-            db.collection("User").whereEqualTo("username", "firstuser1").get()
+            db.collection("User").whereEqualTo("machineCode", machineCode).get()
                     .addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask-> {
 
 
@@ -182,22 +139,59 @@ public class DatabaseController {
      * Mostly for admin method or by user's request; Delete user data
      */
     public void deleteUser(DatabaseCallback databaseCallback, String machineCode) {
-
+        deleteData(databaseCallback, "User", machineCode);
     }
 
     /**
-     * Delete original user's machine code, update it with new code
-     * @param databaseCallback
-     * @param username
+     * Delete original user's machine code
+     * @param databaseCallback Callback class once Firestore replies
+     * @param username a String value stands for username to search user for
      */
-    public void logoutUser(DatabaseCallback databaseCallback, String username) {
-
+    public void logoutUser(DatabaseCallback databaseCallback, String username, String newMachineCode) {
+        updateData(databaseCallback, "User", "username", username, "machineCode", newMachineCode);
     }
 
     /**
      * Delete a post with given post id
      */
     public  void deletePost(DatabaseCallback databaseCallback, String postid) {
+        deleteData(databaseCallback, "Post", postid);
+    }
 
+    /**
+     * Update a data record based on given identifier field and update field
+     * @param databaseCallback callback class once firestore replied
+     * @param objectType a string represents which type of data collection record belongs to
+     * @param identifierField a string for indexing the target record
+     * @param identifierValue the value to match the indexing field
+     * @param updateField the field to be updated for target record
+     * @param updateValue the value to be updated for target record's update field
+     */
+    public void updateData (DatabaseCallback databaseCallback,String objectType , String identifierField, String identifierValue, String updateField, Object updateValue){
+        CollectionReference collectionReference = db.collection(objectType);
+        List<Map> temp = new ArrayList<Map>();
+        Query task = collectionReference.whereEqualTo(identifierField, identifierValue);
+        task.get().addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask-> {
+            boolean success = true;
+            if (runningTask.isSuccessful()) {
+                for (QueryDocumentSnapshot document: runningTask.getResult())
+                    temp.add(document.getData());
+                if (!temp.isEmpty()) { //The record needs to be updated is found
+                    collectionReference.document(identifierValue).update(updateField, updateValue);
+                }
+                databaseCallback.successlistener(success);
+            }
+        });
+
+    }
+
+    public void deleteData(DatabaseCallback databaseCallback, String objectType, String identifierValue) {
+
+        CollectionReference collectionReference = db.collection(objectType);
+        Log.e("DatabaseController: ",identifierValue);
+        collectionReference.document(identifierValue).delete().addOnCompleteListener((OnCompleteListener<Void>) runningTask-> {
+
+            databaseCallback.successlistener(runningTask.isSuccessful());
+        });
     }
 }
