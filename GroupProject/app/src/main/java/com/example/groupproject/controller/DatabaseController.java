@@ -139,13 +139,13 @@ public class DatabaseController {
                                         temp.add(document.toObject(Post.class));
                                     }
                                 }
+                                databaseCallback.run(temp);
                             });
                 }
             }
         });
 
 
-        databaseCallback.run(temp);
     }
 
     /**
