@@ -5,14 +5,14 @@ import java.util.ArrayList;
 public class User {
     private String username;
     private String password;
-    private ArrayList<Object> postList;
+    private ArrayList<String> postList;
     private String email;
     private Boolean owner;
     private String machineCode;
 
     public User() {} //For deserializing the class....
 
-    public User(String username, String password, ArrayList<Object> postList, String email, Boolean owner, String machineCode) {
+    public User(String username, String password, ArrayList<String> postList, String email, Boolean owner, String machineCode) {
         this.username = username;
         this.password = password;
         this.email = email;
@@ -21,7 +21,7 @@ public class User {
         this.owner = owner;
     }
 
-    public User(String username,  ArrayList<Object> postList, String email, Boolean owner, String machineCode) {
+    public User(String username,  ArrayList<String> postList, String email, Boolean owner, String machineCode) {
         this.username = username;
         this.email = email;
         this.machineCode = machineCode;
@@ -45,11 +45,11 @@ public class User {
         this.username = username;
     }
 
-    public ArrayList<Object> getPostList() {
+    public ArrayList<String> getPostList() {
         return postList;
     }
 
-    public void setPostList(ArrayList<Object> postList) {
+    public void setPostList(ArrayList<String> postList) {
         this.postList = postList;
     }
 
