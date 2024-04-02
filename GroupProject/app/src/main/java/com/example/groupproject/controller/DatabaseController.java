@@ -8,6 +8,8 @@ import com.example.groupproject.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.firestore.CollectionReference;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -21,7 +23,7 @@ public class DatabaseController {
     private static User currentUser;
     private static DatabaseController dbInstance;
     final private FirebaseFirestore db;
-    final private String[] collections = {"User", "Post","LocationIndex"};
+
     private DatabaseController(){
         db = FirebaseFirestore.getInstance();
     }
@@ -58,12 +60,7 @@ public class DatabaseController {
         });
     }
 
-    /**
-     * TODO:
-     *  Generate unqiue post id to assign
-     *  Save post to Firestore with given info
-     *  return in databaseCallback once finished
-     */
+
     public void createPost(DatabaseCallback databaseCallback, Post post) {
         String id = java.util.UUID.randomUUID().toString(); //generate unique id
         CollectionReference collectionReference = db.collection("Post");
@@ -84,7 +81,7 @@ public class DatabaseController {
     }
 
     /**
-     * Fetch current userdata based on macineCode of current phone
+     * Fetch current userdata based on machineCode of current phone
      * Add the returned current user to a temporary list as return in callback function
      * @param databaseCallback call back class that runs once Firestore replies
      * @param machineCode A String stands for current phone's id to fetch current user
@@ -111,28 +108,38 @@ public class DatabaseController {
         }
     }
 
-    /**
-     * TODO:
-     *  return a user based on username, return in databaseCallback
-     *  Make sure get password as well!
-     *
-     */
-    public void  getUser(DatabaseCallback databaseCallback, List<Object> result, String username) {
-
+    public void getUser(DatabaseCallback databaseCallback, List<Object> result, String username) {
+        getData(databaseCallback,"User", username);
     }
 
     /**
      * Return a post based on post id, return in databaseCallback
      */
     public void getPost(DatabaseCallback databaseCallback, String id) {
-
+        getData(databaseCallback,"Post",id);
     }
 
     /**
      * Return a list of post based on username, return in databaseCallback
      */
     public void getPosts(DatabaseCallback databaseCallback, String username) {
+        List<Object> temp = new ArrayList<Object>();
+        CollectionReference userCollectionReference = db.collection("User");
+        User user = userCollectionReference.document(username).get().getResult().toObject(User.class);
 
+        CollectionReference postCollectionReference = db.collection("Post");
+        if (user != null){ //if user if found, retrieve all posts belonged to this user:
+            postCollectionReference.whereIn(FieldPath.documentId(), user.getPostList())
+                    .get()
+                    .addOnCompleteListener( (OnCompleteListener<QuerySnapshot>) runningTask-> {
+                        if (runningTask.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : runningTask.getResult()) {
+                                temp.add(document.toObject(Post.class));
+                            }
+                        }
+                    });
+        }
+        databaseCallback.run(temp);
     }
 
     /**
@@ -193,5 +200,56 @@ public class DatabaseController {
 
             databaseCallback.successlistener(runningTask.isSuccessful());
         });
+    }
+
+    /**
+     * Get one/multiple records
+     * @param databaseCallback callback class runs once Firestore replies
+     * @param objectType A string value to query correct collection
+     * @param identifierValue A string value to retrieve record
+     * @param all flag to determine if fetching all records
+     */
+    public void getData (DatabaseCallback databaseCallback,String objectType, String identifierValue, boolean all) {
+        CollectionReference collectionReference = db.collection(objectType);
+        List<Object> temp = new ArrayList<Object>();
+        if (!all) {
+            collectionReference.document(identifierValue).get()
+                    .addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) runningTask-> {
+                if (runningTask.isSuccessful()) {
+                    if (objectType.equals("User")){
+                        temp.add(runningTask.getResult().toObject(User.class));
+                    } else if (objectType.equals("Location")) {
+    //                        temp.add(runningTask.getResult().toObject(Location.class));
+                    } else if (objectType.equals("Post")) {
+                        temp.add(runningTask.getResult().toObject(Post.class));
+                    }
+                    databaseCallback.run(temp);
+                }
+            });
+        } else { //fetch all users/locations/posts
+            collectionReference.get().addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask-> {
+                if (runningTask.isSuccessful()) {
+                    for (DocumentSnapshot document : runningTask.getResult()) {
+                        if (objectType.equals("User")){
+                            temp.add(document.toObject(User.class));
+                        } else if (objectType.equals("Location")) {
+//                            temp.add(document.toObject(Location.class));
+                        } else if (objectType.equals("Post")) {
+                            temp.add(document.toObject(Post.class));
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Get one record from Firestore
+     * @param databaseCallback callback class runs once Firestore replies
+     * @param objectType A string stands for type of data
+     * @param identifierValue The id of a record
+     */
+    public void getData(DatabaseCallback databaseCallback, String objectType, String identifierValue) {
+        getData(databaseCallback, objectType, identifierValue, false);
     }
 }
