@@ -14,10 +14,11 @@ public class Post {
     private HashMap<String, ArrayList<String>> comments;
     // multiple pics under one post
     private ArrayList<Bitmap> photo;
-
+    private String content;
+    private String title;
     public Post() {} //For deserializing the class....
 
-    public Post(String id,String user, String location, HashMap<String, ArrayList<String>> comments, ArrayList <Bitmap> photo, Boolean isPublic){
+    public Post(String id, String title, String content, String user, String location, HashMap<String, ArrayList<String>> comments, ArrayList <Bitmap> photo, Boolean isPublic){
          this.id = id;
          this.user = user;
          this.isPublic = isPublic;
@@ -26,7 +27,7 @@ public class Post {
          this.photo = photo;
     }
 
-    public Post(String user, String location, HashMap<String, ArrayList<String>> comments, ArrayList <Bitmap> photo, Boolean isPublic){
+    public Post(String user, String title, String content, String location, HashMap<String, ArrayList<String>> comments, ArrayList <Bitmap> photo, Boolean isPublic){
         this.user = user;
         this.isPublic = isPublic;
         this.location = location;
