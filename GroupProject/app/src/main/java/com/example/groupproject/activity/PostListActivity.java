@@ -2,6 +2,7 @@ package com.example.groupproject.activity;
 
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,8 +31,10 @@ public class PostListActivity extends AppCompatActivity {
             }
             Toast.makeText(getContext(),"In PostListActivity!!", Toast.LENGTH_SHORT).show();
             RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(getContext(),  temp);
-            recyclerView.setAdapter(recyclerViewAdapter);
+            recyclerView = findViewById(R.id.my_recycler_view);
+            Log.e("PostListActivity: ","Post found: " + temp.toString());
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            recyclerView.setAdapter(recyclerViewAdapter);
         }
         @Override
         public void successlistener(Boolean success) {}
@@ -51,7 +54,7 @@ public class PostListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_creation);
 
-        recyclerView = findViewById(R.id.my_recycler_view);
+
         db.getCurrentUser(databaseCallback,Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
     }
 }

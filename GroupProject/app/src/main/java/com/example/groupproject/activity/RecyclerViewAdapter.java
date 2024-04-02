@@ -1,6 +1,7 @@
 package com.example.groupproject.activity;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.groupproject.R;
 import com.example.groupproject.model.Post;
-import com.example.groupproject.model.User;
-import com.example.groupproject.model.UsersModel;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
 
@@ -36,6 +34,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewAdapter.MyViewHolder holder, int position) {
+        Log.e("RecyclerViewAdapter: ", "Postid is " + postList.get(position).getId());
         holder.textView.setText(postList.get(position).getId());
     }
 
@@ -51,6 +50,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
             textView = itemView.findViewById(R.id.username);
+
         }
     }
 }
