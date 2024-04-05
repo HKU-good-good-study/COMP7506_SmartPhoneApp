@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 public class DatabaseController {
     private static User currentUser;
     private static DatabaseController dbInstance;
@@ -108,8 +110,14 @@ public class DatabaseController {
         }
     }
 
-    public void getUser(DatabaseCallback databaseCallback, List<Object> result, String username) {
-        getData(databaseCallback,"User", username);
+    /**
+     * Get one or all users
+     * @param databaseCallback callback class that runs once firestore replies
+     * @param flag true for fetching all users false for one user
+     * @param username the username is the key to find the specific user null if fetching all users
+     */
+    public void getUser(DatabaseCallback databaseCallback, boolean flag, @Nullable String username) {
+        getData(databaseCallback,"User", username, flag);
     }
 
     /**
@@ -215,10 +223,10 @@ public class DatabaseController {
      * @param identifierValue A string value to retrieve record
      * @param all flag to determine if fetching all records
      */
-    public void getData (DatabaseCallback databaseCallback,String objectType, String identifierValue, boolean all) {
+    public void getData (DatabaseCallback databaseCallback,String objectType, @Nullable String identifierValue, boolean all) {
         CollectionReference collectionReference = db.collection(objectType);
         List<Object> temp = new ArrayList<Object>();
-        if (!all) {
+        if (!all && identifierValue != null ) {
             collectionReference.document(identifierValue).get()
                     .addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) runningTask-> {
                 if (runningTask.isSuccessful()) {
@@ -243,6 +251,7 @@ public class DatabaseController {
                         } else if (objectType.equals("Post")) {
                             temp.add(document.toObject(Post.class));
                         }
+                        databaseCallback.run(temp);
                     }
                 }
             });

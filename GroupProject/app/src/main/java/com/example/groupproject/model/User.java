@@ -33,6 +33,20 @@ public class User {
         return machineCode;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    public void addPost (String postid) {
+        postList.add(postid);
+    }
+
+    public void deletePost(String postid) {
+        postList.remove(postid);
+    }
     public void setMachineCode(String machineCode) {
         this.machineCode = machineCode;
     }
