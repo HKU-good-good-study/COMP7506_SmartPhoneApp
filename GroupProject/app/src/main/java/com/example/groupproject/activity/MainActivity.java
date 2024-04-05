@@ -76,7 +76,9 @@ public class MainActivity extends AppCompatActivity {
                 if (success) {
                     Toast.makeText(getContext(),"User is created", Toast.LENGTH_SHORT).show();
                 } else {
-                    Intent postCreate = new Intent(getContext(), PostListActivity.class);
+//                    Intent postCreate = new Intent(getContext(), PostListActivity.class);
+//                    getContext().startActivity(postCreate);
+                    Intent postCreate = new Intent(getContext(), PostCreateActivity.class);
                     getContext().startActivity(postCreate);
                     Toast.makeText(getContext(),"Username conflict!", Toast.LENGTH_SHORT).show();
                 }

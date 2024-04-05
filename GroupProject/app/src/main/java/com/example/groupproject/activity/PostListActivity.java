@@ -29,7 +29,7 @@ public class PostListActivity extends AppCompatActivity {
             for (Object item : dataList) {
                 temp.add((Post) item);
             }
-            Toast.makeText(getContext(),"In PostListActivity!!", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getContext(),"In PostListActivity!!", Toast.LENGTH_SHORT).show();
             RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(getContext(),  temp);
             recyclerView = findViewById(R.id.my_recycler_view);
             Log.e("PostListActivity: ","Post found: " + temp.toString());

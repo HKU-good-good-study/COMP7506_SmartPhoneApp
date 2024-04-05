@@ -25,6 +25,8 @@ public class Post {
          this.location = location;
          this.comments = comments;
          this.photo = photo;
+         this.title = title;
+         this. content = content;
     }
 
     public Post(String user, String title, String content, String location, HashMap<String, ArrayList<String>> comments, ArrayList <Bitmap> photo, Boolean isPublic){
@@ -33,6 +35,8 @@ public class Post {
         this.location = location;
         this.comments = comments;
         this.photo = photo;
+        this.title = title;
+        this. content = content;
     }
 
     public String getUser() {
@@ -81,5 +85,9 @@ public class Post {
 
     public void setPhoto(ArrayList<Bitmap> photo) {
         this.photo = photo;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }
