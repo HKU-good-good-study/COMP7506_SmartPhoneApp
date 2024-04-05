@@ -1,5 +1,4 @@
 package com.example.groupproject.model;
-import android.graphics.Bitmap;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -13,12 +12,12 @@ public class Post {
     // A user id --> A list of comments
     private HashMap<String, ArrayList<String>> comments;
     // multiple pics under one post
-    private ArrayList<Bitmap> photo;
+    private ArrayList<String> photo;
     private String content;
     private String title;
     public Post() {} //For deserializing the class....
 
-    public Post(String id, String title, String content, String user, String location, HashMap<String, ArrayList<String>> comments, ArrayList <Bitmap> photo, Boolean isPublic){
+    public Post(String id, String title, String content, String user, String location, HashMap<String, ArrayList<String>> comments, ArrayList <String> photo, Boolean isPublic){
          this.id = id;
          this.user = user;
          this.isPublic = isPublic;
@@ -29,7 +28,7 @@ public class Post {
          this. content = content;
     }
 
-    public Post(String user, String title, String content, String location, HashMap<String, ArrayList<String>> comments, ArrayList <Bitmap> photo, Boolean isPublic){
+    public Post(String user, String title, String content, String location, HashMap<String, ArrayList<String>> comments, ArrayList <String> photo, Boolean isPublic){
         this.user = user;
         this.isPublic = isPublic;
         this.location = location;
@@ -79,15 +78,19 @@ public class Post {
         this.comments = comments;
     }
 
-    public ArrayList<Bitmap> getPhoto() {
+    public ArrayList<String> getPhoto() {
         return photo;
     }
 
-    public void setPhoto(ArrayList<Bitmap> photo) {
+    public void setPhoto(ArrayList<String> photo) {
         this.photo = photo;
     }
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

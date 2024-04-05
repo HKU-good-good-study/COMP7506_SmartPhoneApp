@@ -64,7 +64,7 @@ public class DatabaseController {
 
 
     public void createPost(DatabaseCallback databaseCallback, Post post) {
-        String id = java.util.UUID.randomUUID().toString(); //generate unique id
+        String id = post.getId(); //generate unique id
         CollectionReference collectionReference = db.collection("Post");
         collectionReference
                 .whereEqualTo("id",id)
@@ -72,7 +72,7 @@ public class DatabaseController {
                 .addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask -> {
             if (runningTask.isSuccessful()) {
                 if (runningTask.getResult().isEmpty()){ //if id is unique
-                    post.setId(id);
+
                     collectionReference.document(id).set(post);
                     databaseCallback.successlistener(true);
                 } else {

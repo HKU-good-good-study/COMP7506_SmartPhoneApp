@@ -56,8 +56,6 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-
-
         usernameDisplay = findViewById(R.id.username_display);
 
         // User this callback to fetch current user or other operations with databaseController

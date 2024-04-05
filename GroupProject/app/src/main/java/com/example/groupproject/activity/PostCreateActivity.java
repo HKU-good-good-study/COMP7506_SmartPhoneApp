@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +26,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -46,6 +48,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 public class PostCreateActivity extends AppCompatActivity {
@@ -53,13 +56,18 @@ public class PostCreateActivity extends AppCompatActivity {
     private ImageView photoImage;
     private Button confirmButton;
 
-    private ActivityResultLauncher<Intent> activityResultLauncher;
+    private ActivityResultLauncher<Intent> permissionResultLauncher;
 
     private Bitmap photoBitmap;
 
+    private boolean cameraPermission;
+
     private Post currentpost = new Post();
 
+    private ArrayList<String> photoList = new ArrayList<>();
+
     private Boolean private_Only = false, saveLocation = false;
+    DatabaseController db = DatabaseController.getInstance();
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,22 +96,31 @@ public class PostCreateActivity extends AppCompatActivity {
             }
         });
 
-        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        photoImage.setOnClickListener(new View.OnClickListener() {
             @Override
+            public void onClick(View v) {
+                //get the bitmap for the picture
+                checkPermission(v.getContext());
+            }
+
+        });
+
+        permissionResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+                @Override
             public void onActivityResult(ActivityResult result) {
 
                 if ( result.getData() != null) {
-                    // get the bitmap for the picture
-//                    Bundle bundle = result.getData().getExtras();
-//                    photoBitmap = (Bitmap) bundle.get("data");
-//                    photoImage.setImageBitmap(photoBitmap);
-//
-//                    ArrayList<Bitmap> photoList = new ArrayList<Bitmap>();
-//                    photoList.add(photoBitmap);
+                    Bundle bundle = result.getData().getExtras();
+                    photoBitmap = (Bitmap) bundle.get("data");
+                    photoImage.setImageBitmap(photoBitmap);
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    photoBitmap.compress(Bitmap.CompressFormat.PNG,100, byteArrayOutputStream); // 100 is permission code for location
+                    byte[] b = byteArrayOutputStream.toByteArray();
+                    String bitMapString = Base64.encodeToString(b, Base64.DEFAULT);
+                    photoList.add(bitMapString);
 
                     try {
                         //edit text
-
                         userInputEditText.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -145,40 +162,44 @@ public class PostCreateActivity extends AppCompatActivity {
 
                                 try { // save post's information
 
-                                    Post currentpost = new Post();
-                                    Toast.makeText(PostCreateActivity.this, "now is in confirm", Toast.LENGTH_SHORT).show();
-                                    DatabaseController db = DatabaseController.getInstance();
 
                                     DatabaseCallback databaseCallbackUser = new DatabaseCallback(PostCreateActivity.this) {
                                         @Override
                                         public void run(List<Object> dataList) {
                                             User current_user = (User) dataList.get(0);
                                             currentpost.setUser(current_user.getUsername());
+
+                                            String userText = userInputEditText.getText().toString();
+                                            currentpost.setTitle(userText);
+                                            currentpost.setPhoto(photoList);
+                                            currentpost.setPublic(private_Only);
+//                                                        currentpost.setLocation();
+
+                                            currentpost.setId(UUID.randomUUID().toString());
+
+                                            Toast.makeText(PostCreateActivity.this, "now is in confirm", Toast.LENGTH_SHORT).show();
+                                            DatabaseCallback databaseCallback = new DatabaseCallback(PostCreateActivity.this) {
+                                                @Override
+                                                public void run(List<Object> dataList) {}
+                                                @Override
+                                                public void successlistener(Boolean success) {
+                                                    if(success){
+                                                        Toast.makeText(getContext(),"save finished", Toast.LENGTH_LONG).show();
+                                                        finish();
+                                                    }else{
+                                                        Toast.makeText(getContext(),"save failed", Toast.LENGTH_LONG).show();
+                                                    }
+                                                }
+                                            };
+
+                                            db.createPost(databaseCallback,currentpost);
                                         }
                                         @Override
                                         public void successlistener(Boolean success) {}
                                     };
-                                    DatabaseCallback databaseCallback = new DatabaseCallback(PostCreateActivity.this) {
-                                        @Override
-                                        public void run(List<Object> dataList) {
 
-                                        }
+                                    db.getCurrentUser(databaseCallbackUser, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 
-                                        @Override
-                                        public void successlistener(Boolean success) {
-                                            try {
-                                                String userText = userInputEditText.getText().toString();
-                                                currentpost.setContent(userText);
-//                                            currentpost.setPhoto(photoList);
-                                                currentpost.setPublic(private_Only);
-//                                                        currentpost.setLocation();
-
-                                            }  catch (Exception e) {
-                                                e.printStackTrace();}
-
-                                        }
-                                    };
-                                    db.createPost(databaseCallback,currentpost);
 
 
                                 }catch (Exception e){
@@ -194,11 +215,40 @@ public class PostCreateActivity extends AppCompatActivity {
                     }
                 }
             }
-
-
-
         });
+    }
 
 
+    /**
+     * Check the permission of the camera
+     * @param context QrScannedActivity
+     */
+    public void checkPermission(Context context){
+
+        // ask permission for user camera
+        if (ContextCompat.checkSelfPermission(context,
+                Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity) context,
+                    new String[]{Manifest.permission.CAMERA},
+                    CAMERA_ACTION_CODE);
+        } else {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            permissionResultLauncher.launch(intent);
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Log.e("PostCreateActivity: ", "Request now has the result");
+        switch (requestCode) {
+            case CAMERA_ACTION_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // Pop camera
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    permissionResultLauncher.launch(intent);
+                    break;
+                }
+        }
     }
 }
