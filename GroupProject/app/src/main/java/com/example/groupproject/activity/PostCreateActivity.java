@@ -62,7 +62,7 @@ public class PostCreateActivity extends AppCompatActivity {
 
     private boolean cameraPermission;
 
-    private Post currentpost = new Post();
+    private Post currentpost;
 
     private ArrayList<String> photoList = new ArrayList<>();
 
@@ -167,15 +167,31 @@ public class PostCreateActivity extends AppCompatActivity {
                                         @Override
                                         public void run(List<Object> dataList) {
                                             User current_user = (User) dataList.get(0);
-                                            currentpost.setUser(current_user.getUsername());
+//                                            currentpost.setUser(current_user.getUsername());
+//
+//                                            String userText = userInputEditText.getText().toString();
+//                                            currentpost.setTitle(userText+"this is title");
+//                                            currentpost.setPhoto(photoList);
+//                                            currentpost.setPublic(private_Only);
+////                                                        currentpost.setLocation();
+//
+//                                            currentpost.setId(UUID.randomUUID().toString());
+                                            currentpost = new Post(UUID.randomUUID().toString(),
+                                                    userInputEditText.getText().toString(),
+                                                    null,
+                                                    current_user.getUsername(),
+                                                    null,
+                                                    null,
+                                                    photoList,
+                                                    private_Only);
+//                                            currentpost.setUser(current_user.getUsername());
+//                                            String userText = userInputEditText.getText().toString();
+//                                            currentpost.setTitle(userText);
+//                                            currentpost.setPhoto(photoList);
+//                                            currentpost.setPublic(private_Only);
+////                                                        currentpost.setLocation();
+//                                            currentpost.setId(UUID.randomUUID().toString());
 
-                                            String userText = userInputEditText.getText().toString();
-                                            currentpost.setTitle(userText+"this is title");
-                                            currentpost.setPhoto(photoList);
-                                            currentpost.setPublic(private_Only);
-//                                                        currentpost.setLocation();
-
-                                            currentpost.setId(UUID.randomUUID().toString());
 
                                             Toast.makeText(PostCreateActivity.this, "now is in confirm", Toast.LENGTH_SHORT).show();
                                             DatabaseCallback databaseCallback = new DatabaseCallback(PostCreateActivity.this) {
