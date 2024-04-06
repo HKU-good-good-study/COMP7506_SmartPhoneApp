@@ -170,7 +170,7 @@ public class PostCreateActivity extends AppCompatActivity {
                                             currentpost.setUser(current_user.getUsername());
 
                                             String userText = userInputEditText.getText().toString();
-                                            currentpost.setTitle(userText);
+                                            currentpost.setTitle(userText+"this is title");
                                             currentpost.setPhoto(photoList);
                                             currentpost.setPublic(private_Only);
 //                                                        currentpost.setLocation();
