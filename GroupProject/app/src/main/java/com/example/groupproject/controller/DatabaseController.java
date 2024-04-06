@@ -110,6 +110,14 @@ public class DatabaseController {
         }
     }
 
+    public User getCurrentUser() {
+        if (currentUser != null) {
+
+            return currentUser;
+        }
+        return null;
+    }
+
     /**
      * Get one or all users
      * @param databaseCallback callback class that runs once firestore replies
@@ -179,16 +187,19 @@ public class DatabaseController {
         deleteData(databaseCallback, "Post", postid);
     }
 
+    public void updateUser(DatabaseCallback databaseCallback, String username,  User user) {
+        updateData(databaseCallback, "User", "username", username, user);
+    }
+
     /**
      * Update a data record based on given identifier field and update field
      * @param databaseCallback callback class once firestore replied
      * @param objectType a string represents which type of data collection record belongs to
      * @param identifierField a string for indexing the target record
      * @param identifierValue the value to match the indexing field
-     * @param updateField the field to be updated for target record
      * @param updateValue the value to be updated for target record's update field
      */
-    public void updateData (DatabaseCallback databaseCallback,String objectType , String identifierField, String identifierValue, String updateField, Object updateValue){
+    public void updateData (DatabaseCallback databaseCallback,String objectType , String identifierField, String identifierValue, Object updateValue){
         CollectionReference collectionReference = db.collection(objectType);
         List<Map> temp = new ArrayList<Map>();
         Query task = collectionReference.whereEqualTo(identifierField, identifierValue);
@@ -198,7 +209,7 @@ public class DatabaseController {
                 for (QueryDocumentSnapshot document: runningTask.getResult())
                     temp.add(document.getData());
                 if (!temp.isEmpty()) { //The record needs to be updated is found
-                    collectionReference.document(identifierValue).update(updateField, updateValue);
+                    collectionReference.document(identifierValue).set(updateValue);
                 }
                 databaseCallback.successlistener(success);
             }
