@@ -172,15 +172,6 @@ public class DatabaseController {
     }
 
     /**
-     * Delete original user's machine code and update machine code from a new device
-     * @param databaseCallback Callback class once Firestore replies
-     * @param username a String value stands for username to search user for
-     */
-    public void logoutUser(DatabaseCallback databaseCallback, String username, String newMachineCode) {
-        updateData(databaseCallback, "User", "username", username, "machineCode", newMachineCode);
-    }
-
-    /**
      * Delete a post with given post id
      */
     public  void deletePost(DatabaseCallback databaseCallback, String postid) {
