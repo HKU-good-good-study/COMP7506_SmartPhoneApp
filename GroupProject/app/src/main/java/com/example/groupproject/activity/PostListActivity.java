@@ -2,8 +2,6 @@ package com.example.groupproject.activity;
 
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,11 +28,11 @@ public class PostListActivity extends AppCompatActivity {
                 temp.add((Post) item);
             }
 //            Toast.makeText(getContext(),"In PostListActivity!!", Toast.LENGTH_SHORT).show();
-            RecyclerViewAdapter recyclerViewAdapter = new RecyclerViewAdapter(getContext(),  temp);
+            PostListRecyclerAdapter postListRecyclerAdapter = new PostListRecyclerAdapter(getContext(),  temp);
             recyclerView = findViewById(R.id.my_recycler_view);
 //            Log.e("PostListActivity: ","Post found: " + temp.toString());
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-            recyclerView.setAdapter(recyclerViewAdapter);
+            recyclerView.setAdapter(postListRecyclerAdapter);
         }
         @Override
         public void successlistener(Boolean success) {}

@@ -15,27 +15,27 @@ import com.example.groupproject.model.Post;
 
 import java.util.ArrayList;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder> {
+public class PostListRecyclerAdapter extends RecyclerView.Adapter<PostListRecyclerAdapter.MyViewHolder> {
 
     Context context;
     ArrayList<Post> postList;
 
-    public RecyclerViewAdapter(Context context, ArrayList<Post> postList) {
+    public PostListRecyclerAdapter(Context context, ArrayList<Post> postList) {
         this.context = context;
         this.postList = postList;
     }
 
     @NonNull
     @Override
-    public RecyclerViewAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public PostListRecyclerAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(this.context).inflate(R.layout.item_recyclerview_post,parent, false);
         return new MyViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerViewAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull PostListRecyclerAdapter.MyViewHolder holder, int position) {
         Log.e("RecyclerViewAdapter: ", "Postid is " + postList.get(position).getId());
-        holder.textView.setText(postList.get(position).getId());
+        holder.textView.setText(postList.get(position).getTitle());
     }
 
     @Override

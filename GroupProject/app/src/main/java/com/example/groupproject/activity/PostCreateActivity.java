@@ -167,15 +167,9 @@ public class PostCreateActivity extends AppCompatActivity {
                                         @Override
                                         public void run(List<Object> dataList) {
                                             User current_user = (User) dataList.get(0);
-//                                            currentpost.setUser(current_user.getUsername());
-//
-//                                            String userText = userInputEditText.getText().toString();
-//                                            currentpost.setTitle(userText+"this is title");
-//                                            currentpost.setPhoto(photoList);
-//                                            currentpost.setPublic(private_Only);
-////                                                        currentpost.setLocation();
-//
-//                                            currentpost.setId(UUID.randomUUID().toString());
+
+
+//                                            Toast.makeText(PostCreateActivity.this, "getText:"+ userInputEditText.getText().toString(), Toast.LENGTH_SHORT).show();
                                             currentpost = new Post(UUID.randomUUID().toString(),
                                                     userInputEditText.getText().toString(),
                                                     null,
@@ -184,6 +178,7 @@ public class PostCreateActivity extends AppCompatActivity {
                                                     null,
                                                     photoList,
                                                     private_Only);
+
 //                                            currentpost.setUser(current_user.getUsername());
 //                                            String userText = userInputEditText.getText().toString();
 //                                            currentpost.setTitle(userText);
@@ -201,7 +196,22 @@ public class PostCreateActivity extends AppCompatActivity {
                                                 public void successlistener(Boolean success) {
                                                     if(success){
                                                         Toast.makeText(getContext(),"save finished", Toast.LENGTH_LONG).show();
-                                                        finish();
+                                                        DatabaseCallback databaseCallbackUser = new DatabaseCallback(PostCreateActivity.this) {
+                                                            @Override
+                                                            public void run(List<Object> dataList) {
+
+                                                            }
+
+                                                            @Override
+                                                            public void successlistener(Boolean success) {
+                                                                if(success){
+                                                                    finish();
+                                                                }
+                                                            }
+                                                        };
+                                                        current_user.addPost(currentpost.getId());
+                                                        db.updateUser(databaseCallbackUser,current_user.getUsername(),current_user);
+
                                                     }else{
                                                         Toast.makeText(getContext(),"save failed", Toast.LENGTH_LONG).show();
                                                     }
@@ -209,7 +219,11 @@ public class PostCreateActivity extends AppCompatActivity {
                                             };
 
                                             db.createPost(databaseCallback,currentpost);
-                                        }
+
+
+
+
+                                            }
                                         @Override
                                         public void successlistener(Boolean success) {}
                                     };
