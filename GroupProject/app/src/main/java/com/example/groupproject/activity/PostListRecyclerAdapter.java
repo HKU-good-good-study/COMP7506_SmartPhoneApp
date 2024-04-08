@@ -1,6 +1,7 @@
 package com.example.groupproject.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,8 +35,19 @@ public class PostListRecyclerAdapter extends RecyclerView.Adapter<PostListRecycl
 
     @Override
     public void onBindViewHolder(@NonNull PostListRecyclerAdapter.MyViewHolder holder, int position) {
-        Log.e("RecyclerViewAdapter: ", "Postid is " + postList.get(position).getId());
+//        Log.e("RecyclerViewAdapter: ", "Postid is " + postList.get(position).getId());
         holder.textView.setText(postList.get(position).getTitle());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = holder.getAdapterPosition(); // get current location
+                Intent ViewMyPost = new Intent(v.getContext(), ViewMyPostActivity.class);
+                // 将整个 Post 对象作为一个 "extra" 放入 Intent 中
+                ViewMyPost.putExtra("POST", postList.get(position));
+                v.getContext().startActivity(ViewMyPost);
+                Log.e("RecyclerViewAdapter: ", "Clicked Post ID: " + postList.get(position).getId());
+            }
+        });
     }
 
     @Override
