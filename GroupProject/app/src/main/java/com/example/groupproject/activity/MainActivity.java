@@ -38,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Intent leaderboardCreate = new Intent(this, LeaderboardActivity.class);
+        this.startActivity(leaderboardCreate);
         permissionResultLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
             @Override
             public void onActivityResult(Map<String, Boolean> o) {
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        db.createUser(databaseCallback, new User("111",new ArrayList<>(), "123.com", false, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID)));
+//        db.createUser(databaseCallback, new User("111",new ArrayList<>(), "123.com", false, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID)));
 //        db.createPost(databaseCallback, new Post("111","somewhere", new HashMap<>(),null, true));
 //        db.getCurrentUser(databaseCallback, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 //        db.logoutUser(databaseCallback, "firstuser2",Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
