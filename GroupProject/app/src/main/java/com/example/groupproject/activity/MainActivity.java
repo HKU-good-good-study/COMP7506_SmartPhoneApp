@@ -130,8 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         int id = v.getId();
         if (v.getId() == R.id.Map_Button) {
-            Intent mapIntent = new Intent(this, MapActivity.class);
-            this.startActivity(mapIntent);
+            this.startActivity(new Intent(this, MapActivity.class));
         } else if (id == R.id.profile_Button) {
 
         } else if (id == R.id.Search_Button) {
