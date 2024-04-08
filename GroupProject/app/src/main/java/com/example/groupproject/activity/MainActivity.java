@@ -1,5 +1,7 @@
 package com.example.groupproject.activity;
 
+import static java.security.AccessController.getContext;
+
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -13,21 +15,21 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.groupproject.R;
 import com.example.groupproject.controller.DatabaseCallback;
 import com.example.groupproject.controller.DatabaseController;
-import com.example.groupproject.model.Post;
 import com.example.groupproject.model.User;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     DatabaseController db = DatabaseController.getInstance();
     ActivityResultLauncher<String[]> permissionResultLauncher;
     private boolean readPermission;
@@ -35,9 +37,28 @@ public class MainActivity extends AppCompatActivity {
     private boolean cameraPermission;
     private TextView usernameDisplay;
 
+    private Button mapButt;
+    private Button leaderboardButt;
+    private Button profileButt;
+    private Button search;
+    private Button admin;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        mapButt =findViewById(R.id.Map_Button);
+        leaderboardButt = findViewById(R.id.Leaderboard_Button);
+        profileButt = findViewById(R.id.profile_Button);
+        search = findViewById(R.id.Search_Button);
+
+        mapButt.setOnClickListener(this);
+        profileButt.setOnClickListener(this);
+        usernameDisplay = findViewById(R.id.user_textView);
+
+        //TODO: porbably don't need result launcher since Main activity doesn't need any permission based operations,
+        // However, activity uses these permissions should still check permissions before they use camera, internet, location, storage, etc.
         permissionResultLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
             @Override
             public void onActivityResult(Map<String, Boolean> o) {
@@ -49,14 +70,12 @@ public class MainActivity extends AppCompatActivity {
 
                 if (o.get(Manifest.permission.ACCESS_FINE_LOCATION) != null)
                     readPermission = o.get(Manifest.permission.ACCESS_FINE_LOCATION);
-
             }
         });
+
         requestPermissions();
 
-        setContentView(R.layout.activity_main);
 
-        usernameDisplay = findViewById(R.id.username_display);
 
         // User this callback to fetch current user or other operations with databaseController
         DatabaseCallback databaseCallback = new DatabaseCallback(this) {
@@ -64,9 +83,6 @@ public class MainActivity extends AppCompatActivity {
             public void run(List<Object> dataList) { //Used for fetch user
                 User currentUser = (User) dataList.get(0);
                 usernameDisplay.setText(currentUser.getUsername());
-
-
-
             }
 
             @Override
@@ -74,20 +90,11 @@ public class MainActivity extends AppCompatActivity {
                 if (success) {
                     Toast.makeText(getContext(),"User is created", Toast.LENGTH_SHORT).show();
                 } else {
-                    Intent postList = new Intent(getContext(), PostListActivity.class);
-                    getContext().startActivity(postList);
-//                    Intent postCreate = new Intent(getContext(), PostCreateActivity.class);
-//                    getContext().startActivity(postCreate);
                     Toast.makeText(getContext(),"Username conflict!", Toast.LENGTH_SHORT).show();
                 }
             }
         };
-
-        db.createUser(databaseCallback, new User("111",new ArrayList<>(), "123.com", false, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID)));
-//        db.createPost(databaseCallback, new Post("111","somewhere", new HashMap<>(),null, true));
 //        db.getCurrentUser(databaseCallback, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
-//        db.logoutUser(databaseCallback, "firstuser2",Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
-//        db.deleteUser(databaseCallback, "203a5e7037811ed9");
     }
 
     private void requestPermissions(){
@@ -118,6 +125,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        if (v.getId() == R.id.Map_Button) {
+            this.startActivity(new Intent(this, MapActivity.class));
+        } else if (id == R.id.profile_Button) {
+            Intent postList = new Intent(this, PostListActivity.class);
+            this.startActivity(postList);
+        } else if (id == R.id.Search_Button) {
 
+        } else if (id == R.id.Leaderboard_Button) {
 
+        } else if( id == R.id.admin_Button) {
+
+        }
+    }
 }
