@@ -1,10 +1,10 @@
 package com.example.groupproject.activity;
 
+import static com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY;
+
 import android.Manifest;
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -15,6 +15,9 @@ import androidx.core.app.ActivityCompat;
 
 import com.example.groupproject.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -26,7 +29,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap gMap;
     private final int REQUEST_CODE = 101;
     SupportMapFragment mapFragment;
@@ -37,8 +40,39 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        getCurrentLocation();
+
+
+        LocationRequest locationRequest = new LocationRequest.Builder(PRIORITY_HIGH_ACCURACY)
+                .setWaitForAccurateLocation(false)
+                .setMinUpdateIntervalMillis(2000)
+                .setMaxUpdateDelayMillis(100)
+                .build();
+
+        LocationCallback locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                if (locationRequest == null) {
+                    return;
+                }
+            }
+        };
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        LocationServices.getFusedLocationProviderClient(getApplicationContext())
+                .requestLocationUpdates(locationRequest, locationCallback, null);
         getCurrentLocation();
     }
 
@@ -50,6 +84,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     public void getCurrentLocation() {
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions( this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
@@ -61,9 +96,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         task.addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
-                if (mapFragment != null){
+                if (location != null){
                     currentLocation = location;
-//                    Log.e("getCurrentLocation: ", location.toString());
+                    Log.e("getCurrentLocation: ", location.toString());
                     mapFragment.getMapAsync(MapActivity.this);
                 } if (location == null) {
                     getCurrentLocation();
@@ -83,13 +118,5 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         }
     }
-
-
-    @Override
-    public void onLocationChanged(@NonNull Location location) {
-        if (currentLocation == null) {
-            currentLocation = location;
-            getCurrentLocation();
-        }
-    }
 }
+
