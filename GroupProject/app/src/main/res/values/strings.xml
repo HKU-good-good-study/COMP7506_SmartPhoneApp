@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">GroupProject</string>
+    <string name="profile">It\'s me</string>
+    <string name="aboutText">ahahaha</string>
+    <string name="search">Search...</string>
 </resources>
