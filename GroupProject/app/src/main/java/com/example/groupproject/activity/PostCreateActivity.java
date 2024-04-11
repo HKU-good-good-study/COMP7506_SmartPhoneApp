@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -41,12 +43,14 @@ import com.example.groupproject.model.User;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -67,18 +71,27 @@ public class PostCreateActivity extends AppCompatActivity {
     private ArrayList<String> photoList = new ArrayList<>();
 
     private Boolean private_Only = false, saveLocation = false;
+
+    private double latitude,longitude;
+
+    private String cityName;
+
+
+
     DatabaseController db = DatabaseController.getInstance();
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_postpose);
 
-//        // setup for getting location:
-//        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-//        FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-//
-//        // get location in locationController
-//        locationController.run(this, null, locationManager,  fusedLocationProviderClient);
+
+
+        // setup for getting location:
+        latitude = getIntent().getDoubleExtra("latitude", 0);
+        longitude = getIntent().getDoubleExtra("longitude", 0);
+        cityName = getCity(this);
+
+//        Toast.makeText(PostCreateActivity.this, "location:"+cityName+latitude+longitude, Toast.LENGTH_SHORT).show();
 
         // binding variables with layout
         photoImage = findViewById(R.id.pose_ImageView);
@@ -150,7 +163,9 @@ public class PostCreateActivity extends AppCompatActivity {
                             public void onClick(View v) {
                                 if (locationSave.isChecked()) {
                                     saveLocation = true;
+
                                 } else {
+                                    saveLocation = false;
 
                                 }
                             }
@@ -174,7 +189,7 @@ public class PostCreateActivity extends AppCompatActivity {
                                                     userInputEditText.getText().toString(),
                                                     null,
                                                     current_user.getUsername(),
-                                                    null,
+                                                    cityName,
                                                     null,
                                                     photoList,
                                                     private_Only);
@@ -280,5 +295,31 @@ public class PostCreateActivity extends AppCompatActivity {
                     break;
                 }
         }
+    }
+
+    /**
+     * A getter method for city details of current Location
+     * @param context Activity which calls LocationController
+     * @return A string represents City name
+     */
+    public String getCity(Context context) {
+        String cityName = null;
+        Double lati = latitude;
+        Double longti = longitude;
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        List<Address> address;
+
+        try {
+            address = geocoder.getFromLocation(lati,longti, 1);
+            if (address.size() == 1) {
+                if(address.get(0).getLocality() != null && address.get(0).getLocality().length() > 0){
+                    cityName = address.get(0).getLocality();
+                    Log.e("LocationController city name is: ", address.get(0).toString() );
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return cityName;
     }
 }

@@ -58,7 +58,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         post.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent postCreation = new Intent(MapActivity.this, PostCreateActivity.class);
+                postCreation.putExtra("latitude", currentLocation.getLatitude());
+                postCreation.putExtra("longitude", currentLocation.getLongitude());
                 v.getContext().startActivity(postCreation);
             }
         });

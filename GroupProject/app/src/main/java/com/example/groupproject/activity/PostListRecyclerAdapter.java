@@ -2,10 +2,14 @@ package com.example.groupproject.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,6 +24,10 @@ public class PostListRecyclerAdapter extends RecyclerView.Adapter<PostListRecycl
 
     Context context;
     ArrayList<Post> postList;
+    private ImageView photoImage;
+
+    private String selectedBitmap;
+
 
     public PostListRecyclerAdapter(Context context, ArrayList<Post> postList) {
         this.context = context;
@@ -36,7 +44,11 @@ public class PostListRecyclerAdapter extends RecyclerView.Adapter<PostListRecycl
     @Override
     public void onBindViewHolder(@NonNull PostListRecyclerAdapter.MyViewHolder holder, int position) {
 //        Log.e("RecyclerViewAdapter: ", "Postid is " + postList.get(position).getId());
-        holder.textView.setText(postList.get(position).getTitle());
+        holder.textView_postTitle.setText(postList.get(position).getTitle());
+
+        //get and set the photo
+        selectedBitmap = postList.get(position).getPhoto().get(0);
+        holder.imageView.setImageBitmap(StringToBitMap(selectedBitmap));
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,12 +69,27 @@ public class PostListRecyclerAdapter extends RecyclerView.Adapter<PostListRecycl
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
 
-        TextView textView;
+        TextView textView_postTitle;
+        ImageView imageView ;
+
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-            textView = itemView.findViewById(R.id.username);
+            textView_postTitle = itemView.findViewById(R.id.postTitle);
+            imageView = itemView.findViewById(R.id.bitmap_smallView);
 
+
+        }
+    }
+
+    public Bitmap StringToBitMap(String encodedString){
+        try {
+            byte [] encodeByte= Base64.decode(encodedString,Base64.DEFAULT);
+            Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);
+            return bitmap;
+        } catch(Exception e) {
+            e.getMessage();
+            return null;
         }
     }
 }

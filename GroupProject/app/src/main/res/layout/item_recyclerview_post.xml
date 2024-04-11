@@ -6,24 +6,24 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="5dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="postTitle"
-        android:textColor="@color/white"
+    <ImageView
+        android:id="@+id/bitmap_smallView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_marginStart="25dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="25dp"
         android:layout_marginBottom="15dp"
-        android:textSize="20sp">
+        android:textSize="20sp"
+        android:scaleType="centerCrop">
 
-    </TextView>
+    </ImageView>
 
     <TextView
-        android:id="@+id/username"
+        android:id="@+id/postTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="内容"
+        android:text="postTitle内容"
         android:textColor="@color/white"
         android:layout_marginStart="25dp"
         android:layout_marginTop="15dp"

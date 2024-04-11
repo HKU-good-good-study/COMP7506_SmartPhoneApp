@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button search;
     private Button admin;
 
+    private User currentUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         DatabaseCallback databaseCallback = new DatabaseCallback(this) {
             @Override
             public void run(List<Object> dataList) { //Used for fetch user
-                User currentUser = (User) dataList.get(0);
+                currentUser = (User) dataList.get(0);
                 usernameDisplay.setText(currentUser.getUsername());
             }
 
