@@ -1,8 +1,11 @@
 package com.example.groupproject.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +27,7 @@ import java.util.Set;
 public class LeaderboardActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     DatabaseController dbcontroller = DatabaseController.getInstance();
+    Button backbtn;
     DatabaseCallback dbcallback = new DatabaseCallback(this) {
         @Override
         public void run(List<Object> dataList) {
@@ -59,8 +63,14 @@ public class LeaderboardActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_leaderboard);
-
         dbcontroller.getUser(dbcallback, true, null);
+        backbtn = findViewById(R.id.leaderboardbutton);
+        backbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(LeaderboardActivity.this, PostCreateActivity.class));
+            }
+        });
 
     }
 }

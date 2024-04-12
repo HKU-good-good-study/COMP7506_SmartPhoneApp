@@ -13,10 +13,19 @@
         android:id="@+id/leaderboardrecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_weight=".20"
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="20dp"
         />
+    <Button
+        android:id="@+id/leaderboardbutton"
+        android:text="Back"
+        android:layout_gravity="center"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        />
 
 </LinearLayout>
+
