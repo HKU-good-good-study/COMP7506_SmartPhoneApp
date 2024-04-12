@@ -48,4 +48,8 @@ public class Location {
     public void setPosts(ArrayList<String> posts) {
         this.posts = posts;
     }
+
+    public void addPost(String postid) {this.posts.add(postid);}
+
+    public void deletePost(String postid) {this.posts.remove(postid);}
 }
