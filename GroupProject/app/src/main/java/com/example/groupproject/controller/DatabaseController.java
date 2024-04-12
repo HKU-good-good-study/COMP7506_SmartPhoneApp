@@ -175,7 +175,7 @@ public class DatabaseController {
             }
         });
     }
-    
+
     public void getLocations (DatabaseCallback databaseCallback, String location){
         getData(databaseCallback,"Location",location,true);
     }
@@ -196,6 +196,10 @@ public class DatabaseController {
 
     public void updateUser(DatabaseCallback databaseCallback, String username,  User user) {
         updateData(databaseCallback, "User", "username", username, user);
+    }
+
+    public void updateLocation(DatabaseCallback databaseCallback, Location location) {
+        updateData(databaseCallback, "Location", "location", location.getLatitude() + ","+location.getLongitude(), location);
     }
 
     /**
