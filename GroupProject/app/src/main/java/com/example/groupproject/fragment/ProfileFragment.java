@@ -20,6 +20,8 @@ public class ProfileFragment extends Fragment {
     FragmentProfileBinding binding;
     DatabaseController db = DatabaseController.getInstance();
 
+    private boolean isEditing = false;
+
     public ProfileFragment() {
 
     }
@@ -55,6 +57,46 @@ public class ProfileFragment extends Fragment {
 
         db.getCurrentUser(databaseCallback, Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ANDROID_ID));
 
+        binding.editProfile.setOnClickListener(v -> {
+            if (!isEditing) {
+//                binding.usernameProfile.setEnabled(true);
+                binding.emailProfile.setEnabled(true);
+                binding.editProfile.setText("Save");
+                isEditing = true;
+            } else {
+//                String username = binding.usernameProfile.getText().toString();
+                String email = binding.emailProfile.getText().toString();
+
+                if (email.isEmpty()) {
+//                    binding.usernameProfile.setError("Username is empty");
+                    binding.emailProfile.setError("Email is empty");
+                    return;
+                }
+
+                DatabaseCallback saveCallback = new DatabaseCallback(getContext()) {
+                    @Override
+                    public void run(List<Object> dataList) {
+                        Toast.makeText(getContext(),"User data saved successfully", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void successlistener(Boolean success) {
+                        if (success) {
+                            Toast.makeText(getContext(),"User data saved successfully", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(getContext(),binding.usernameProfile.toString() + " " + email, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(),"Failed to save user data!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                };
+
+                db.updateData(saveCallback, "User", "username", binding.usernameProfile.toString(), "email", email);
+//                binding.usernameProfile.setEnabled(false);
+                binding.emailProfile.setEnabled(false);
+                binding.editProfile.setText("Edit");
+                isEditing = false;
+            }
+        });
 
         return binding.getRoot();
     }

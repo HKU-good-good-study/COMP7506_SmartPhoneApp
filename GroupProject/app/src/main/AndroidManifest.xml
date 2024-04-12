@@ -30,6 +30,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activity.LoginActivity"
+            android:exported="true"
+        />
+        <activity
+            android:name=".activity.SignUpActivity"
+            android:exported="true"
+        />
     </application>
 
 </manifest>

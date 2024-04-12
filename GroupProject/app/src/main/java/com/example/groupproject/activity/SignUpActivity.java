@@ -19,15 +19,12 @@ import java.util.Objects;
 
 public class SignUpActivity extends AppCompatActivity {
     ActivitySignUpBinding binding;
-    FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivitySignUpBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        auth = FirebaseAuth.getInstance();
 
         binding.signupBtn.setOnClickListener(v -> {
             String email = Objects.requireNonNull(binding.emailETSignUp.getText()).toString();
@@ -42,7 +39,7 @@ public class SignUpActivity extends AppCompatActivity {
             }
 
             // Create a new User object
-            User newUser = new User(username, new ArrayList<>(), "email@example.com", false, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
+            User newUser = new User(username, new ArrayList<>(), email, false, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 
             // Create a DatabaseCallback
             DatabaseCallback databaseCallback = new DatabaseCallback(this) {

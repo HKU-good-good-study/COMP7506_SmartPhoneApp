@@ -56,7 +56,7 @@
         diagonal:layout_constraintBottom_toBottomOf="@+id/linearLayoutCover"
         diagonal:layout_constraintStart_toStartOf="@+id/linearLayoutCover" />
 
-    <TextView
+    <EditText
         android:id="@+id/usernameProfile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -64,45 +64,32 @@
         android:text="Ethan Harris"
         android:textColor="@android:color/black"
         android:textSize="25sp"
+        android:enabled="false"
         diagonal:layout_constraintEnd_toEndOf="@+id/profileImage"
         diagonal:layout_constraintStart_toStartOf="@+id/profileImage"
         diagonal:layout_constraintTop_toBottomOf="@+id/linearLayoutCover" />
 
-    <TextView
+    <EditText
         android:id="@+id/emailProfile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="123@456.com"
         android:textSize="16sp"
+        android:enabled="false"
         diagonal:layout_constraintEnd_toEndOf="@+id/usernameProfile"
         diagonal:layout_constraintStart_toStartOf="@+id/usernameProfile"
         diagonal:layout_constraintTop_toBottomOf="@+id/usernameProfile" />
 
-    <View
-        android:id="@+id/addFriendView"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+    <Button
+        android:id="@+id/editProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
-        android:background="@drawable/circle_background"
-        android:backgroundTint="@color/blue"
+        android:text="Edit"
         diagonal:layout_constraintEnd_toEndOf="parent"
         diagonal:layout_constraintHorizontal_chainStyle="packed"
         diagonal:layout_constraintStart_toStartOf="parent"
         diagonal:layout_constraintTop_toBottomOf="@+id/emailProfile" />
-
-    <ImageView
-        android:id="@+id/imageAddFriend"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:backgroundTint="#fff"
-        android:backgroundTintMode="multiply"
-        android:contentDescription="Add Friend Logo"
-        android:src="@drawable/ic_launcher_foreground"
-        diagonal:layout_constraintBottom_toBottomOf="@+id/addFriendView"
-        diagonal:layout_constraintEnd_toEndOf="@+id/addFriendView"
-        diagonal:layout_constraintHorizontal_bias="0.56"
-        diagonal:layout_constraintStart_toStartOf="@+id/addFriendView"
-        diagonal:layout_constraintTop_toTopOf="@+id/addFriendView" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
@@ -118,7 +105,7 @@
         diagonal:layout_constraintEnd_toEndOf="parent"
         diagonal:layout_constraintHorizontal_bias="0.5"
         diagonal:layout_constraintStart_toStartOf="parent"
-        diagonal:layout_constraintTop_toBottomOf="@+id/addFriendView">
+        diagonal:layout_constraintTop_toBottomOf="@+id/editProfile">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -244,5 +231,7 @@
         diagonal:layout_constraintEnd_toEndOf="@+id/cardView"
         diagonal:layout_constraintStart_toStartOf="@+id/cardView"
         diagonal:layout_constraintTop_toBottomOf="@+id/cardView" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
