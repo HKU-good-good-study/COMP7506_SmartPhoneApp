@@ -1,6 +1,7 @@
 package com.example.groupproject.controller;
 
-import android.provider.ContactsContract;
+import android.location.Address;
+import android.location.Geocoder;
 import android.util.Log;
 
 import com.example.groupproject.model.Location;
@@ -16,8 +17,10 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -218,12 +221,29 @@ public class DatabaseController {
         collectionReference.document(location).get().addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
             if (task.isSuccessful() && task.getResult()!=null) {
                 Location currentLocation = task.getResult().toObject(Location.class);
-                if (add) 
+                if (add)
                     currentLocation.addPost(postid);
                 else
                     currentLocation.deletePost(postid);
 
                 updateLocation(databaseCallback, currentLocation);
+            } else { // if record not found, create a new location with current postid
+                Geocoder geocoder = new Geocoder(databaseCallback.getContext(), Locale.getDefault());
+                Double lati = Double.parseDouble(location.split(",")[1]);
+                Double longit = Double.parseDouble(location.split(",")[0]);
+                ArrayList<String> posts = new ArrayList<String>() ;
+                posts.add(postid);
+                try {
+                    List<Address> address = geocoder.getFromLocation(lati,longit,1);
+                    createLocation(databaseCallback,new Location(
+                            location.split(",")[1],
+                            location.split(",")[0],
+                            address.get(0).getLocality(),
+                            posts
+                            ));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
 
