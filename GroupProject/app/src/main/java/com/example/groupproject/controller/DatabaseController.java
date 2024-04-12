@@ -1,8 +1,10 @@
 package com.example.groupproject.controller;
 
-import android.provider.ContactsContract;
+import android.location.Address;
+import android.location.Geocoder;
 import android.util.Log;
 
+import com.example.groupproject.model.Location;
 import com.example.groupproject.model.Post;
 import com.example.groupproject.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -15,8 +17,10 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -35,6 +39,20 @@ public class DatabaseController {
             dbInstance = new DatabaseController();
 
         return dbInstance;
+    }
+
+    public void createLocation (DatabaseCallback databaseCallback, Location newlocation) {
+        CollectionReference collectionReference = db.collection("Location");
+        List<Object> temp = new ArrayList<Object>();
+        String location = newlocation.getLatitude()+","+newlocation.getLongitude();
+        collectionReference.whereEqualTo("location",location )
+                .get().addOnCompleteListener((OnCompleteListener<QuerySnapshot>) task -> {
+                    if (task.isSuccessful()) {
+                       collectionReference.document(location).set(newlocation); //update Location
+                       databaseCallback.successlistener(true);
+                   }
+                    databaseCallback.successlistener(false);
+                });
     }
 
     /**
@@ -72,7 +90,6 @@ public class DatabaseController {
                 .addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask -> {
             if (runningTask.isSuccessful()) {
                 if (runningTask.getResult().isEmpty()){ //if id is unique
-
                     collectionReference.document(id).set(post);
                     databaseCallback.successlistener(true);
                 } else {
@@ -182,6 +199,14 @@ public class DatabaseController {
         getPosts(databaseCallback, null);
     }
 
+    public void getLocation (DatabaseCallback databaseCallback, String location) {
+        getData(databaseCallback,"Location",location,false);
+    }
+
+    public void getLocations (DatabaseCallback databaseCallback, String location){
+        getData(databaseCallback,"Location",location,true);
+    }
+
     /**
      * Mostly for admin method or by user's request; Delete user data
      */
@@ -199,6 +224,51 @@ public class DatabaseController {
     public void updateUser(DatabaseCallback databaseCallback, String username,  User user) {
         updateData(databaseCallback, "User", "username", username, user);
     }
+
+    public void updateLocation(DatabaseCallback databaseCallback, Location location) {
+        updateData(databaseCallback, "Location", "location", location.getLatitude() + ","+location.getLongitude(), location);
+    }
+
+    /**
+     * Add a post to a Location class on firestore
+     * @param databaseCallback
+     * @param location A String in format "Latitude,Longitude"
+     * @param postid post newly created
+     */
+    public void editPostToLocation (DatabaseCallback databaseCallback, String location, String postid, boolean add) {
+        CollectionReference collectionReference = db.collection("Location");
+
+        collectionReference.document(location).get().addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
+            if (task.isSuccessful() && task.getResult()!=null) {
+                Location currentLocation = task.getResult().toObject(Location.class);
+                if (add)
+                    currentLocation.addPost(postid);
+                else
+                    currentLocation.deletePost(postid);
+
+                updateLocation(databaseCallback, currentLocation);
+            } else { // if record not found, create a new location with current postid
+                Geocoder geocoder = new Geocoder(databaseCallback.getContext(), Locale.getDefault());
+                Double lati = Double.parseDouble(location.split(",")[1]);
+                Double longit = Double.parseDouble(location.split(",")[0]);
+                ArrayList<String> posts = new ArrayList<String>() ;
+                posts.add(postid);
+                try {
+                    List<Address> address = geocoder.getFromLocation(lati,longit,1);
+                    createLocation(databaseCallback,new Location(
+                            location.split(",")[1],
+                            location.split(",")[0],
+                            address.get(0).getLocality(),
+                            posts
+                            ));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+    }
+
 
     /**
      * Update a data record based on given identifier field and update field
@@ -253,7 +323,7 @@ public class DatabaseController {
                     if (objectType.equals("User")){
                         temp.add(runningTask.getResult().toObject(User.class));
                     } else if (objectType.equals("Location")) {
-    //                        temp.add(runningTask.getResult().toObject(Location.class));
+                            temp.add(runningTask.getResult().toObject(Location.class));
                     } else if (objectType.equals("Post")) {
                         temp.add(runningTask.getResult().toObject(Post.class));
                     }
@@ -267,7 +337,7 @@ public class DatabaseController {
                         if (objectType.equals("User")){
                             temp.add(document.toObject(User.class));
                         } else if (objectType.equals("Location")) {
-//                            temp.add(document.toObject(Location.class));
+                            temp.add(document.toObject(Location.class));
                         } else if (objectType.equals("Post")) {
                             temp.add(document.toObject(Post.class));
                         }
