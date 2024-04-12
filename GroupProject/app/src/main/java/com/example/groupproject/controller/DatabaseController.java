@@ -3,6 +3,7 @@ package com.example.groupproject.controller;
 import android.provider.ContactsContract;
 import android.util.Log;
 
+import com.example.groupproject.model.Location;
 import com.example.groupproject.model.Post;
 import com.example.groupproject.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -35,6 +36,20 @@ public class DatabaseController {
             dbInstance = new DatabaseController();
 
         return dbInstance;
+    }
+
+    public void createLocation (DatabaseCallback databaseCallback, Location newlocation) {
+        CollectionReference collectionReference = db.collection("Location");
+        List<Object> temp = new ArrayList<Object>();
+        String location = newlocation.getLatitude()+","+newlocation.getLongitude();
+        collectionReference.whereEqualTo("location",location )
+                .get().addOnCompleteListener((OnCompleteListener<QuerySnapshot>) task -> {
+                    if (task.isSuccessful()) {
+                       collectionReference.document(location).set(newlocation); //update Location
+                       databaseCallback.successlistener(true);
+                   }
+                    databaseCallback.successlistener(false);
+                });
     }
 
     /**
@@ -72,7 +87,6 @@ public class DatabaseController {
                 .addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask -> {
             if (runningTask.isSuccessful()) {
                 if (runningTask.getResult().isEmpty()){ //if id is unique
-
                     collectionReference.document(id).set(post);
                     databaseCallback.successlistener(true);
                 } else {
@@ -160,8 +174,10 @@ public class DatabaseController {
                 }
             }
         });
+    }
 
-
+    public void getLocations (DatabaseCallback databaseCallback, String location){
+        getData(databaseCallback,"Location",location,true);
     }
 
     /**
@@ -180,6 +196,10 @@ public class DatabaseController {
 
     public void updateUser(DatabaseCallback databaseCallback, String username,  User user) {
         updateData(databaseCallback, "User", "username", username, user);
+    }
+
+    public void updateLocation(DatabaseCallback databaseCallback, Location location) {
+        updateData(databaseCallback, "Location", "location", location.getLatitude() + ","+location.getLongitude(), location);
     }
 
     /**
@@ -235,7 +255,7 @@ public class DatabaseController {
                     if (objectType.equals("User")){
                         temp.add(runningTask.getResult().toObject(User.class));
                     } else if (objectType.equals("Location")) {
-    //                        temp.add(runningTask.getResult().toObject(Location.class));
+                            temp.add(runningTask.getResult().toObject(Location.class));
                     } else if (objectType.equals("Post")) {
                         temp.add(runningTask.getResult().toObject(Post.class));
                     }
@@ -249,7 +269,7 @@ public class DatabaseController {
                         if (objectType.equals("User")){
                             temp.add(document.toObject(User.class));
                         } else if (objectType.equals("Location")) {
-//                            temp.add(document.toObject(Location.class));
+                            temp.add(document.toObject(Location.class));
                         } else if (objectType.equals("Post")) {
                             temp.add(document.toObject(Post.class));
                         }
