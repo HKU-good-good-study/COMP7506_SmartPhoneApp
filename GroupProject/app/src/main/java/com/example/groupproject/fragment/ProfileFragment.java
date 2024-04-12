@@ -83,14 +83,14 @@ public class ProfileFragment extends Fragment {
                     public void successlistener(Boolean success) {
                         if (success) {
                             Toast.makeText(getContext(),"User data saved successfully", Toast.LENGTH_SHORT).show();
-//                            Toast.makeText(getContext(),binding.usernameProfile.toString() + " " + email, Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(getContext(),"Failed to save user data!", Toast.LENGTH_SHORT).show();
                         }
                     }
                 };
 
-                db.updateData(saveCallback, "User", "username", binding.usernameProfile.toString(), "email", email);
+//                db.updateData(saveCallback, "User", "username", binding.usernameProfile.toString(), "email", email);
+                db.updateData(saveCallback, "User", "username", binding.usernameProfile.getText().toString(), "email", email);
 //                binding.usernameProfile.setEnabled(false);
                 binding.emailProfile.setEnabled(false);
                 binding.editProfile.setText("Edit");
