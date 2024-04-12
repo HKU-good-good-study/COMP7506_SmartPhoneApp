@@ -99,7 +99,8 @@ public class DatabaseController {
                         if (runningTask.isSuccessful()) {
                             for (QueryDocumentSnapshot document : runningTask.getResult()) //fetch user from db
                                 temp.add(document.toObject(User.class));
-                            currentUser = (User)temp.get(0);
+                            if (!temp.isEmpty())
+                                currentUser = (User)temp.get(0);
                             databaseCallback.run(temp);
                         }
                     });
@@ -137,31 +138,48 @@ public class DatabaseController {
 
     /**
      * Return a list of post based on username, return in databaseCallback
+     * if username is null return all posts
      */
     public void getPosts(DatabaseCallback databaseCallback, String username) {
         List<Object> temp = new ArrayList<Object>();
         CollectionReference userCollectionReference = db.collection("User");
-        userCollectionReference.document(username).get().addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) runningTask-> {
-            if (runningTask.isSuccessful()) {
-                User user = runningTask.getResult().toObject(User.class);
-
-                CollectionReference postCollectionReference = db.collection("Post");
-                if (user != null){ //if user if found, retrieve all posts belonged to this user:
-                    postCollectionReference.whereIn(FieldPath.documentId(), user.getPostList())
-                            .get()
-                            .addOnCompleteListener( (OnCompleteListener<QuerySnapshot>) subtask-> {
-                                if (subtask.isSuccessful()) {
-                                    for (QueryDocumentSnapshot document : subtask.getResult()) {
-                                        temp.add(document.toObject(Post.class));
+        CollectionReference postCollectionReference = db.collection("Post");
+        if (username != null) {
+            userCollectionReference.document(username).get().addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) runningTask -> {
+                if (runningTask.isSuccessful()) {
+                    User user = runningTask.getResult().toObject(User.class);
+                    if (user != null) { //if user if found, retrieve all posts belonged to this user:
+                        postCollectionReference.whereIn(FieldPath.documentId(), user.getPostList())
+                                .get()
+                                .addOnCompleteListener((OnCompleteListener<QuerySnapshot>) subtask -> {
+                                    if (subtask.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : subtask.getResult()) {
+                                            temp.add(document.toObject(Post.class));
+                                        }
                                     }
-                                }
-                                databaseCallback.run(temp);
-                            });
+                                    databaseCallback.run(temp);
+                                });
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            postCollectionReference.get().addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask -> {
+                if( runningTask.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : runningTask.getResult()) {
+                        temp.add(document.toObject(Post.class));
+                    }
+                }
+                databaseCallback.run(temp);
+            });
+        }
+    }
 
-
+    /**
+     * Get all posts
+     * @param databaseCallback
+     */
+    public void getPosts(DatabaseCallback databaseCallback){
+        getPosts(databaseCallback, null);
     }
 
     /**
