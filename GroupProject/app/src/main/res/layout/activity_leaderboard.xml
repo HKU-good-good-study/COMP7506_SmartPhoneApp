@@ -5,9 +5,10 @@
     android:orientation="vertical">
 
     <TextView
+        android:id="@+id/currentranking"
         android:layout_width="match_parent"
         android:layout_height="68dp"
-        android:text="@string/leaderboard"></TextView>
+        />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/leaderboardrecyclerView"

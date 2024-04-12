@@ -23,8 +23,6 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
     public LeaderboardAdapter(Context context, ArrayList<ArrayList<Object>> dataList) {
         this.dataList = dataList;
         this.context = context;
-        System.out.println("*************************");
-        System.out.println(this.dataList.get(0).get(0));
     }
 
     @NonNull
@@ -38,8 +36,8 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
     public void onBindViewHolder(@NonNull LeaderboardAdapter.ViewHolder holder, int position) {
         System.out.println("Successfully get the items in adapter onBind!!!!!!");
         this.dataList.forEach(System.out::println);
-        holder.username.setText(this.dataList.get(0).get(0).toString());
-        holder.postcount.setText(this.dataList.get(0).get(1).toString());
+        holder.username.setText(this.dataList.get(position).get(0).toString());
+        holder.postcount.setText(this.dataList.get(position).get(1).toString());
     }
 
     @Override

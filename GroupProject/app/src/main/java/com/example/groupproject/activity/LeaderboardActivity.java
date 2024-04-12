@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,10 +29,16 @@ public class LeaderboardActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     DatabaseController dbcontroller = DatabaseController.getInstance();
     Button backbtn;
+    TextView titlerank;
+    String current_username;
+    int current_ranking;
     DatabaseCallback dbcallback = new DatabaseCallback(this) {
         @Override
         public void run(List<Object> dataList) {
+            User current_user = (User) dataList.get(0);
+            current_username = current_user.getUsername();
             ArrayList<ArrayList<Object>> display_list = new ArrayList<>();
+
             for (Object item : dataList) {
                 User user_info = (User) item;
                 String username = user_info.getUsername();
@@ -46,11 +53,14 @@ public class LeaderboardActivity extends AppCompatActivity {
                 display_list.add(display_item);
             }
             
-            display_list.sort(Comparator.comparing(list -> (Integer) list.get(1)));
+//            display_list.sort(Comparator.comparing(list -> (Integer) list.get(1)));
+            display_list.sort(Comparator.comparing(list -> (Integer) list.get(1), Comparator.reverseOrder()));
+
+
+            current_ranking = findIndex(display_list, current_username);
 
             LeaderboardAdapter adapter = new LeaderboardAdapter(getContext(), display_list);
             recyclerView = findViewById(R.id.leaderboardrecyclerView);
-
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             recyclerView.setAdapter(adapter);
         }
@@ -64,6 +74,18 @@ public class LeaderboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_leaderboard);
         dbcontroller.getUser(dbcallback, true, null);
+
+        titlerank = findViewById(R.id.currentranking);
+        String str_currentranking = String.valueOf(current_ranking + 1);
+        String header;
+        if (current_ranking == -1) {
+            header = "You have not posted anything. Start sharing moments of your life now!";
+        }
+        else {
+            header = "Congrats! You current rank is <" + str_currentranking + ">";
+        }
+        titlerank.setText(header);
+
         backbtn = findViewById(R.id.leaderboardbutton);
         backbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,5 +94,17 @@ public class LeaderboardActivity extends AppCompatActivity {
             }
         });
 
+    }
+    public static int findIndex(List<ArrayList<Object>> display_list, String current_username) {
+        for (int i = 0; i < display_list.size(); i++) {
+            ArrayList<Object> display_item = display_list.get(i);
+            String username = (String) display_item.get(0);
+            if (username.equals(current_username)) {
+
+                return i;
+            }
+
+        }
+        return -1; // Element not found
     }
 }
