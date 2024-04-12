@@ -15,6 +15,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -27,9 +28,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.groupproject.R;
+import com.example.groupproject.controller.DatabaseCallback;
+import com.example.groupproject.controller.DatabaseController;
 import com.example.groupproject.model.Post;
+import com.example.groupproject.model.User;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.List;
 
 
 public class ViewMyPostActivity extends AppCompatActivity {
@@ -52,6 +57,7 @@ public class ViewMyPostActivity extends AppCompatActivity {
         TextView userInputText = findViewById(R.id.pose_TextView_inView);
         TextView privateflag = findViewById(R.id.post_privateflag_inView);
         TextView location = findViewById(R.id.pose_location_inView);
+        Button deleteButton = findViewById(R.id.delete_Button);
 
 
 
@@ -80,6 +86,55 @@ public class ViewMyPostActivity extends AppCompatActivity {
         if(privateFlag){
             privateflag.setText("Private");
         }else{privateflag.setText("Public");}
+
+        DatabaseController db = DatabaseController.getInstance();
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                DatabaseCallback databaseCallback = new DatabaseCallback(ViewMyPostActivity.this) {
+                    @Override
+                    public void run(List<Object> dataList) {
+
+                    }
+
+                    @Override
+                    public void successlistener(Boolean success) {
+                        Toast.makeText(ViewMyPostActivity.this, "successfully delete the post", Toast.LENGTH_SHORT).show();
+                        finish();
+
+
+                    }
+                };
+                DatabaseCallback databaseCallbackUser = new DatabaseCallback(ViewMyPostActivity.this) {
+                    @Override
+                    public void run(List<Object> dataList) {
+                        User current_user = (User) dataList.get(0);
+                        DatabaseCallback databaseCallbackUpdateNumber = new DatabaseCallback(ViewMyPostActivity.this) {
+                            @Override
+                            public void run(List<Object> dataList) {
+
+                            }
+
+                            @Override
+                            public void successlistener(Boolean success) {
+
+                            }
+                        };
+                        current_user.deletePost(clickedPost.getId());
+                        db.updateUser(databaseCallbackUpdateNumber,current_user.getUsername(),current_user);
+
+                    }
+
+                    @Override
+                    public void successlistener(Boolean success) {
+
+                    }
+                };
+                db.deletePost(databaseCallback,clickedPost.getId());
+                db.getCurrentUser(databaseCallbackUser, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
+
+            }
+        });
 
 
 

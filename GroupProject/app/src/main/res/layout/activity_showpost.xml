@@ -81,6 +81,18 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/post_privateflag_inView" />
 
+    <Button
+        android:id="@+id/delete_Button"
+        android:layout_width="173dp"
+        android:layout_height="61dp"
+        android:text="Delete"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pose_location_inView"/>
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
