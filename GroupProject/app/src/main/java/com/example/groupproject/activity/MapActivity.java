@@ -16,8 +16,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.groupproject.R;
+import com.example.groupproject.controller.DatabaseCallback;
+import com.example.groupproject.controller.DatabaseController;
+import com.example.groupproject.model.Post;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -33,6 +37,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap gMap;
     private final int REQUEST_CODE = 101;
@@ -40,6 +47,34 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     Button back,post;
     Location currentLocation;
     FusedLocationProviderClient fusedLocationProviderClient;
+    DatabaseController dbcontroller = DatabaseController.getInstance();
+    DatabaseCallback dbcallback = new DatabaseCallback(this) {
+        @Override
+        public void run(List<Object> dataList) {
+            System.out.println("!!!!!!!!!!!!!!!!!");
+            System.out.println(dataList);
+//            Post current_user = (User) dataList.get(0);
+//            current_username = current_user.getUsername();
+            ArrayList<ArrayList<Object>> display_list = new ArrayList<>();
+
+            for (Object item : dataList) {
+                Post post_info = (Post) item;
+                String location = post_info.getLocation();
+//                ArrayList<String> postlist = user_info.getPostList();
+//                int count = postlist.size();
+//
+//                ArrayList<Object> display_item = new ArrayList<>();
+//                display_item.add(username);
+//                display_item.add(count);
+//
+//
+//                display_list.add(display_item);
+            }
+        }
+        @Override
+        public void successlistener(Boolean success) {}
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +100,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         getCurrentLocation();
+
+        dbcontroller.getPosts(dbcallback, true, null);
     }
 
     @Override
@@ -97,6 +134,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
     }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
