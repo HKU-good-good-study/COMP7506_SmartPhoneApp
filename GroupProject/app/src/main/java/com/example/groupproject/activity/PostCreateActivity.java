@@ -189,7 +189,7 @@ public class PostCreateActivity extends AppCompatActivity {
                                                     userInputEditText.getText().toString(),
                                                     null,
                                                     current_user.getUsername(),
-                                                    cityName,
+                                                    String.format("%f,%f",latitude,longitude),
                                                     null,
                                                     photoList,
                                                     private_Only);
@@ -226,6 +226,11 @@ public class PostCreateActivity extends AppCompatActivity {
                                                         };
                                                         current_user.addPost(currentpost.getId());
                                                         db.updateUser(databaseCallbackUser,current_user.getUsername(),current_user);
+                                                        db.editPostToLocation(new DatabaseCallback(PostCreateActivity.this) {
+                                                            @Override public void run(List<Object> dataList) {} @Override public void successlistener(Boolean success) {}},
+                                                                String.format("%f,%f",latitude,longitude),
+                                                                currentpost.getId(),
+                                                                true);
 
                                                     }else{
                                                         Toast.makeText(getContext(),"save failed", Toast.LENGTH_LONG).show();
@@ -251,6 +256,8 @@ public class PostCreateActivity extends AppCompatActivity {
                                     e.printStackTrace();
 //                                        Log.e("QrScannedActivity: ",e.toString());
                                 }
+
+
                             }
                         });
 

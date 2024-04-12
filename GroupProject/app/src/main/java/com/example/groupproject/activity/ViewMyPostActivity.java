@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
@@ -34,7 +36,9 @@ import com.example.groupproject.model.Post;
 import com.example.groupproject.model.User;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 
 public class ViewMyPostActivity extends AppCompatActivity {
@@ -43,6 +47,7 @@ public class ViewMyPostActivity extends AppCompatActivity {
     private String selectedBitmap;
 
     private Post clickedPost;
+    Double latitude,longitude;
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +84,10 @@ public class ViewMyPostActivity extends AppCompatActivity {
 
         //set position
         String position = clickedPost.getLocation();
+        String[] parts = position.split(",");  // 使用逗号分割字符串
+        latitude = Double.parseDouble(parts[0].trim());  // 将第一部分转换为double
+        longitude = Double.parseDouble(parts[1].trim());  // 将第二部分转换为double
+        position = getCity(this);
         location.setText(position);
 
         //set privateflag
@@ -174,6 +183,32 @@ public class ViewMyPostActivity extends AppCompatActivity {
             e.getMessage();
             return null;
         }
+    }
+
+    /**
+     * A getter method for city details of current Location
+     * @param context Activity which calls LocationController
+     * @return A string represents City name
+     */
+    public String getCity(Context context) {
+        String cityName = null;
+        Double lati = latitude;
+        Double longti = longitude;
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        List<Address> address;
+
+        try {
+            address = geocoder.getFromLocation(lati,longti, 1);
+            if (address.size() == 1) {
+                if(address.get(0).getLocality() != null && address.get(0).getLocality().length() > 0){
+                    cityName = address.get(0).getLocality();
+                    Log.e("LocationController city name is: ", address.get(0).toString() );
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return cityName;
     }
 
 

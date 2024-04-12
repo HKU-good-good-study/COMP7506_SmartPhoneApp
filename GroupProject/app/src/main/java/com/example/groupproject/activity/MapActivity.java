@@ -4,6 +4,7 @@ import static com.example.groupproject.R.*;
 import static com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -11,13 +12,20 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.groupproject.R;
+import com.example.groupproject.controller.DatabaseCallback;
+import com.example.groupproject.model.Post;
+import com.example.groupproject.model.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -32,6 +40,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap gMap;
@@ -68,13 +79,30 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         getCurrentLocation();
+
+
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
+        gMap = googleMap;
         LatLng location = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
         googleMap.addMarker(new MarkerOptions().position(location).title("You"));
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location,12));
+
+        gMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng point) {
+                // 创建一个AlertDialog.Builder对象
+                AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
+                builder.setTitle("Posts");
+
+                builder.setMessage("Postmessage");  // 设置自定义布局
+                builder.setPositiveButton("确定", null);  // 添加一个确定按钮
+                builder.show();  // 显示对话框
+            }
+        });
+
     }
 
     public void getCurrentLocation() {
