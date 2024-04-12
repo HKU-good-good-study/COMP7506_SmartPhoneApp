@@ -99,7 +99,8 @@ public class DatabaseController {
                         if (runningTask.isSuccessful()) {
                             for (QueryDocumentSnapshot document : runningTask.getResult()) //fetch user from db
                                 temp.add(document.toObject(User.class));
-                            currentUser = (User)temp.get(0);
+                            if (!temp.isEmpty())
+                                currentUser = (User)temp.get(0);
                             databaseCallback.run(temp);
                         }
                     });
