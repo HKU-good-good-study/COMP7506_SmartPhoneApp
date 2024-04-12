@@ -1,11 +1,10 @@
 package com.example.groupproject.activity;
 
-import static com.example.groupproject.R.*;
-import static com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,28 +15,25 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.groupproject.R;
 import com.example.groupproject.controller.DatabaseCallback;
 import com.example.groupproject.controller.DatabaseController;
 import com.example.groupproject.model.Post;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -48,27 +44,45 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     Location currentLocation;
     FusedLocationProviderClient fusedLocationProviderClient;
     DatabaseController dbcontroller = DatabaseController.getInstance();
+    List<Object> postList;
     DatabaseCallback dbcallback = new DatabaseCallback(this) {
         @Override
         public void run(List<Object> dataList) {
             System.out.println("!!!!!!!!!!!!!!!!!");
             System.out.println(dataList);
+//            postList = dataList;
 //            Post current_user = (User) dataList.get(0);
 //            current_username = current_user.getUsername();
-            ArrayList<ArrayList<Object>> display_list = new ArrayList<>();
-
             for (Object item : dataList) {
                 Post post_info = (Post) item;
+                String postid = post_info.getId();
                 String location = post_info.getLocation();
-//                ArrayList<String> postlist = user_info.getPostList();
-//                int count = postlist.size();
-//
-//                ArrayList<Object> display_item = new ArrayList<>();
-//                display_item.add(username);
-//                display_item.add(count);
-//
-//
-//                display_list.add(display_item);
+
+                if (location != null){
+                    String[] latLong = location.split(",");
+                    System.out.println(latLong[0]);
+                    double latitude = Double.parseDouble(latLong[0]);
+                    double longitude = Double.parseDouble(latLong[1]);
+
+                    List<Address> addressList = null;
+                    Geocoder geocoder = new Geocoder(MapActivity.this);
+
+                    try {
+                        addressList = geocoder.getFromLocation(latitude, longitude,1);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (addressList != null && !addressList.isEmpty()) {
+                        Address address = addressList.get(0);
+                        LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                        System.out.println("********$$$$$$$$**********");
+                        System.out.println(latLng);
+                        Marker marker = gMap.addMarker(new MarkerOptions().position(latLng).title("").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                        marker.setTag(postid);
+                        gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+                    } else {
+                        Toast.makeText(MapActivity.this, "Location not found", Toast.LENGTH_SHORT).show();}
+                }
             }
         }
         @Override
@@ -101,15 +115,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         getCurrentLocation();
 
-        dbcontroller.getPosts(dbcallback, true, null);
+        dbcontroller.getPosts(dbcallback);
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
+        gMap = googleMap;
         LatLng location = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
         googleMap.addMarker(new MarkerOptions().position(location).title("You"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location,12));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location,120));
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
     }
+
+
 
     public void getCurrentLocation() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
