@@ -176,6 +176,10 @@ public class DatabaseController {
         });
     }
 
+    public void getLocation (DatabaseCallback databaseCallback, String location) {
+        getData(databaseCallback,"Location",location,false);
+    }
+
     public void getLocations (DatabaseCallback databaseCallback, String location){
         getData(databaseCallback,"Location",location,true);
     }
@@ -201,6 +205,30 @@ public class DatabaseController {
     public void updateLocation(DatabaseCallback databaseCallback, Location location) {
         updateData(databaseCallback, "Location", "location", location.getLatitude() + ","+location.getLongitude(), location);
     }
+
+    /**
+     * Add a post to a Location class on firestore
+     * @param databaseCallback
+     * @param location A String in format "Latitude,Longitude"
+     * @param postid post newly created
+     */
+    public void editPostToLocation (DatabaseCallback databaseCallback, String location, String postid, boolean add) {
+        CollectionReference collectionReference = db.collection("Location");
+
+        collectionReference.document(location).get().addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
+            if (task.isSuccessful() && task.getResult()!=null) {
+                Location currentLocation = task.getResult().toObject(Location.class);
+                if (add) 
+                    currentLocation.addPost(postid);
+                else
+                    currentLocation.deletePost(postid);
+
+                updateLocation(databaseCallback, currentLocation);
+            }
+        });
+
+    }
+
 
     /**
      * Update a data record based on given identifier field and update field
