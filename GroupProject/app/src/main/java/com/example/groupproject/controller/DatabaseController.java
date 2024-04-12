@@ -175,9 +175,9 @@ public class DatabaseController {
             }
         });
     }
-
-    public void getLocation (DatabaseCallback databaseCallback, String location){
-        CollectionReference collectionReference = db.collection("Location");
+    
+    public void getLocations (DatabaseCallback databaseCallback, String location){
+        getData(databaseCallback,"Location",location,true);
     }
 
     /**
@@ -251,7 +251,7 @@ public class DatabaseController {
                     if (objectType.equals("User")){
                         temp.add(runningTask.getResult().toObject(User.class));
                     } else if (objectType.equals("Location")) {
-    //                        temp.add(runningTask.getResult().toObject(Location.class));
+                            temp.add(runningTask.getResult().toObject(Location.class));
                     } else if (objectType.equals("Post")) {
                         temp.add(runningTask.getResult().toObject(Post.class));
                     }
@@ -265,7 +265,7 @@ public class DatabaseController {
                         if (objectType.equals("User")){
                             temp.add(document.toObject(User.class));
                         } else if (objectType.equals("Location")) {
-//                            temp.add(document.toObject(Location.class));
+                            temp.add(document.toObject(Location.class));
                         } else if (objectType.equals("Post")) {
                             temp.add(document.toObject(Post.class));
                         }
