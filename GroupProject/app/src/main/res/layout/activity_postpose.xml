@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fillViewport="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/constraint_layout_no_code_found"
+    tools:ignore="UseSwitchCompatOrMaterialXml">
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:clickable="true"
+        android:src="@drawable/back"
+        app:backgroundTint="@color/grey"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="?attr/actionModeCloseDrawable"
+        android:focusable="true" />
+
+    <TextView
+        android:id="@+id/title_textView"
+        android:layout_width="292dp"
+        android:layout_height="69dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="pose your post"
+        android:textSize="40sp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/backButton"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/confirm_Button"
+        android:layout_width="173dp"
+        android:layout_height="61dp"
+
+        android:background="@drawable/confirm_button_background"
+        android:text="Confirm"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraint_layout_inside_o_code_found" />
+
+
+    <EditText
+        android:id="@+id/pose_TextView"
+        android:layout_width="360dp"
+        android:layout_height="170dp"
+        android:hint="@string/hint"
+        android:inputType="textMultiLine"
+        app:layout_constraintBottom_toTopOf="@+id/pose_ImageView"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title_textView" />
+
+    <ImageView
+        android:id="@+id/pose_ImageView"
+        android:layout_width="360dp"
+        android:layout_height="170dp"
+        android:background="@drawable/add"
+        app:layout_constraintBottom_toTopOf="@+id/constraint_layout_inside_o_code_found"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pose_TextView"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraint_layout_inside_o_code_found"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/confirm_Button"
+        app:layout_constraintTop_toBottomOf="@+id/pose_ImageView" >
+
+        <Switch
+            android:id="@+id/privateOnly_switch"
+            android:layout_width="64dp"
+            android:layout_height="53dp"
+            android:scaleX="2.5"
+            android:scaleY="2.5"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/location_switch"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
+        <Switch
+            android:id="@+id/location_switch"
+            android:layout_width="64dp"
+            android:layout_height="53dp"
+            android:scaleX="2.5"
+            android:scaleY="2.5"
+            app:layout_constraintLeft_toRightOf="@+id/privateOnly_switch"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/photo_textView_code_not_found"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginLeft="32dp"
+            android:text="Private Only"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/location_textView_code_not_found"
+            app:layout_constraintTop_toBottomOf="@+id/privateOnly_switch" />
+
+        <TextView
+            android:id="@+id/location_textView_code_not_found"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginLeft="16dp"
+            android:text="Save location"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/photo_textView_code_not_found"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/location_switch" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

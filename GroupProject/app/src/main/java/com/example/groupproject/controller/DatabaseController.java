@@ -1,9 +1,8 @@
 package com.example.groupproject.controller;
 
-import android.provider.ContactsContract;
+import android.location.Address;
+import android.location.Geocoder;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
 
 import com.example.groupproject.model.Location;
 import com.example.groupproject.model.Post;
@@ -19,8 +18,10 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -39,6 +40,20 @@ public class DatabaseController {
             dbInstance = new DatabaseController();
 
         return dbInstance;
+    }
+
+    public void createLocation (DatabaseCallback databaseCallback, Location newlocation) {
+        CollectionReference collectionReference = db.collection("Location");
+        List<Object> temp = new ArrayList<Object>();
+        String location = newlocation.getLatitude()+","+newlocation.getLongitude();
+        collectionReference.whereEqualTo("location",location )
+                .get().addOnCompleteListener((OnCompleteListener<QuerySnapshot>) task -> {
+                    if (task.isSuccessful()) {
+                       collectionReference.document(location).set(newlocation); //update Location
+                       databaseCallback.successlistener(true);
+                   }
+                    databaseCallback.successlistener(false);
+                });
     }
 
     /**
@@ -68,7 +83,7 @@ public class DatabaseController {
 
 
     public void createPost(DatabaseCallback databaseCallback, Post post) {
-        String id = java.util.UUID.randomUUID().toString(); //generate unique id
+        String id = post.getId(); //generate unique id
         CollectionReference collectionReference = db.collection("Post");
         collectionReference
                 .whereEqualTo("id",id)
@@ -76,7 +91,6 @@ public class DatabaseController {
                 .addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask -> {
             if (runningTask.isSuccessful()) {
                 if (runningTask.getResult().isEmpty()){ //if id is unique
-                    post.setId(id);
                     collectionReference.document(id).set(post);
                     databaseCallback.successlistener(true);
                 } else {
@@ -86,10 +100,6 @@ public class DatabaseController {
         });
     }
 
-    public void createLocation(DatabaseCallback databaseCallback, Location location) {
-        CollectionReference collectionReference = db.collection("Location");
-        collectionReference.document(location.getLatitude()+","+location.getLongitude()).set(location);
-    }
 
     /**
      * Fetch current userdata based on machineCode of current phone
@@ -118,6 +128,14 @@ public class DatabaseController {
             temp.add(currentUser);
             databaseCallback.run(temp);
         }
+    }
+
+    public User getCurrentUser() {
+        if (currentUser != null) {
+
+            return currentUser;
+        }
+        return null;
     }
 
     /**
@@ -183,20 +201,19 @@ public class DatabaseController {
         getPosts(databaseCallback, null);
     }
 
+    public void getLocation (DatabaseCallback databaseCallback, String location) {
+        getData(databaseCallback,"Location",location,false);
+    }
+
+    public void getLocations (DatabaseCallback databaseCallback, String location){
+        getData(databaseCallback,"Location",location,true);
+    }
+
     /**
      * Mostly for admin method or by user's request; Delete user data
      */
     public void deleteUser(DatabaseCallback databaseCallback, String username) {
         deleteData(databaseCallback, "User", username);
-    }
-
-    /**
-     * Delete original user's machine code and update machine code from a new device
-     * @param databaseCallback Callback class once Firestore replies
-     * @param username a String value stands for username to search user for
-     */
-    public void logoutUser(DatabaseCallback databaseCallback, String username, String newMachineCode) {
-        updateData(databaseCallback, "User", "username", username, "machineCode", newMachineCode);
     }
 
     /**
@@ -206,16 +223,64 @@ public class DatabaseController {
         deleteData(databaseCallback, "Post", postid);
     }
 
+    public void updateUser(DatabaseCallback databaseCallback, String username,  User user) {
+        updateData(databaseCallback, "User", "username", username, user);
+    }
+
+    public void updateLocation(DatabaseCallback databaseCallback, Location location) {
+        updateData(databaseCallback, "Location", "location", location.getLatitude() + ","+location.getLongitude(), location);
+    }
+
+    /**
+     * Add a post to a Location class on firestore
+     * @param databaseCallback
+     * @param location A String in format "Latitude,Longitude"
+     * @param postid post newly created
+     */
+    public void editPostToLocation (DatabaseCallback databaseCallback, String location, String postid, boolean add) {
+        CollectionReference collectionReference = db.collection("Location");
+
+        collectionReference.document(location).get().addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
+            if (task.isSuccessful() && task.getResult()!=null) {
+                Location currentLocation = task.getResult().toObject(Location.class);
+                if (add)
+                    currentLocation.addPost(postid);
+                else
+                    currentLocation.deletePost(postid);
+
+                updateLocation(databaseCallback, currentLocation);
+            } else { // if record not found, create a new location with current postid
+                Geocoder geocoder = new Geocoder(databaseCallback.getContext(), Locale.getDefault());
+                Double lati = Double.parseDouble(location.split(",")[1]);
+                Double longit = Double.parseDouble(location.split(",")[0]);
+                ArrayList<String> posts = new ArrayList<String>() ;
+                posts.add(postid);
+                try {
+                    List<Address> address = geocoder.getFromLocation(lati,longit,1);
+                    createLocation(databaseCallback,new Location(
+                            location.split(",")[1],
+                            location.split(",")[0],
+                            address.get(0).getLocality(),
+                            posts
+                            ));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+    }
+
+
     /**
      * Update a data record based on given identifier field and update field
      * @param databaseCallback callback class once firestore replied
      * @param objectType a string represents which type of data collection record belongs to
      * @param identifierField a string for indexing the target record
      * @param identifierValue the value to match the indexing field
-     * @param updateField the field to be updated for target record
      * @param updateValue the value to be updated for target record's update field
      */
-    public void updateData (DatabaseCallback databaseCallback,String objectType , String identifierField, String identifierValue, String updateField, Object updateValue){
+    public void updateData (DatabaseCallback databaseCallback,String objectType , String identifierField, String identifierValue, Object updateValue){
         CollectionReference collectionReference = db.collection(objectType);
         List<Map> temp = new ArrayList<Map>();
         Query task = collectionReference.whereEqualTo(identifierField, identifierValue);
@@ -225,7 +290,7 @@ public class DatabaseController {
                 for (QueryDocumentSnapshot document: runningTask.getResult())
                     temp.add(document.getData());
                 if (!temp.isEmpty()) { //The record needs to be updated is found
-                    collectionReference.document(identifierValue).update(updateField, updateValue);
+                    collectionReference.document(identifierValue).set(updateValue);
                 }
                 databaseCallback.successlistener(success);
             }
@@ -260,7 +325,7 @@ public class DatabaseController {
                     if (objectType.equals("User")){
                         temp.add(runningTask.getResult().toObject(User.class));
                     } else if (objectType.equals("Location")) {
-    //                        temp.add(runningTask.getResult().toObject(Location.class));
+                            temp.add(runningTask.getResult().toObject(Location.class));
                     } else if (objectType.equals("Post")) {
                         temp.add(runningTask.getResult().toObject(Post.class));
                     }
@@ -274,7 +339,7 @@ public class DatabaseController {
                         if (objectType.equals("User")){
                             temp.add(document.toObject(User.class));
                         } else if (objectType.equals("Location")) {
-//                            temp.add(document.toObject(Location.class));
+                            temp.add(document.toObject(Location.class));
                         } else if (objectType.equals("Post")) {
                             temp.add(document.toObject(Post.class));
                         }

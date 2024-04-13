@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GroupProject</string>
+    <string name="hint">Write your text here:</string>
 </resources>
