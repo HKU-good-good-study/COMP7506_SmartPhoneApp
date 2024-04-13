@@ -167,7 +167,7 @@ public class DatabaseController {
             userCollectionReference.document(username).get().addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) runningTask -> {
                 if (runningTask.isSuccessful()) {
                     User user = runningTask.getResult().toObject(User.class);
-                    if (user != null) { //if user if found, retrieve all posts belonged to this user:
+                    if (user != null && !user.getPostList().isEmpty()) { //if user if found, retrieve all posts belonged to this user:
                         postCollectionReference.whereIn(FieldPath.documentId(), user.getPostList())
                                 .get()
                                 .addOnCompleteListener((OnCompleteListener<QuerySnapshot>) subtask -> {
@@ -178,6 +178,8 @@ public class DatabaseController {
                                     }
                                     databaseCallback.run(temp);
                                 });
+                    } else if (user!= null){
+                        databaseCallback.run(temp);
                     }
                 }
             });
@@ -296,6 +298,24 @@ public class DatabaseController {
             }
         });
 
+    }
+
+    public void updatePieceData(DatabaseCallback databaseCallback, String objectType, String identifierField, String identifierValue, String updateField, String updateValue) {
+        CollectionReference collectionReference = db.collection(objectType);
+        List<Map> temp = new ArrayList<Map>();
+        Query task = collectionReference.whereEqualTo(identifierField, identifierValue);
+        task.get().addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask-> {
+            boolean success = false;
+            if (runningTask.isSuccessful()) {
+                for (QueryDocumentSnapshot document: runningTask.getResult())
+                    temp.add(document.getData());
+                if (!temp.isEmpty()) { //The record needs to be updated is found
+                    collectionReference.document(identifierValue).update(updateField, updateValue);
+                    success = true;
+                }
+                databaseCallback.successlistener(success);
+            }
+        });
     }
 
     public void deleteData(DatabaseCallback databaseCallback, String objectType, String identifierValue) {

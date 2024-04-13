@@ -141,12 +141,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         getCurrentLocation();
 
-        dbcontroller.getPosts(dbcallback);
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         gMap = googleMap;
+        dbcontroller.getPosts(dbcallback);
         LatLng location = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
         gMap.addMarker(new MarkerOptions().position(location).title("You"));
         gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location,120));

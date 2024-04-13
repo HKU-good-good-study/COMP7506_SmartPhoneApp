@@ -90,7 +90,8 @@ public class LeaderboardActivity extends AppCompatActivity {
         backbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LeaderboardActivity.this, PostCreateActivity.class));
+                finish();
+//                startActivity(new Intent(LeaderboardActivity.this, PostCreateActivity.class));
             }
         });
 
