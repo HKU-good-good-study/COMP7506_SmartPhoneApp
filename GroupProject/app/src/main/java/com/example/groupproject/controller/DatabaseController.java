@@ -3,9 +3,13 @@ package com.example.groupproject.controller;
 import android.provider.ContactsContract;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.example.groupproject.model.Location;
 import com.example.groupproject.model.Post;
 import com.example.groupproject.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -80,6 +84,11 @@ public class DatabaseController {
                 }
             }
         });
+    }
+
+    public void createLocation(DatabaseCallback databaseCallback, Location location) {
+        CollectionReference collectionReference = db.collection("Location");
+        collectionReference.document(location.getLatitude()+","+location.getLongitude()).set(location);
     }
 
     /**
