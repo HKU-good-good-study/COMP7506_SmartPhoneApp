@@ -89,6 +89,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         public void successlistener(Boolean success) {}
     };
 
+    DatabaseCallback getDbcallbacksinglepost = new DatabaseCallback(this) {
+        @Override
+        public void run(List<Object> dataList) {
+            for (Object item : dataList) {
+                System.out.println("******************");
+                System.out.println(item);
+                startActivity(new Intent(MapActivity.this, PostListRecyclerAdapter.class));
+            }
+        }
+
+        @Override
+        public void successlistener(Boolean success) {}
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,9 +135,28 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(@NonNull GoogleMap googleMap) {
         gMap = googleMap;
         LatLng location = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        googleMap.addMarker(new MarkerOptions().position(location).title("You"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location,120));
-        googleMap.getUiSettings().setZoomControlsEnabled(true);
+        gMap.addMarker(new MarkerOptions().position(location).title("You"));
+        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location,120));
+        gMap.getUiSettings().setZoomControlsEnabled(true);
+
+        gMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                String postid = marker.getTag().toString();
+//                System.out.println("post id:");
+//                System.out.println(postid);
+                dbcontroller.getPost(getDbcallbacksinglepost, postid);
+
+
+//                String venueName = marker.getTitle();
+//                Intent intent = new Intent(MapActivity.this, NewActivity.class);
+//                intent.putExtra(VENUE_NAME, venueName);
+//                intent.putExtra(VENUE_ID, venueID);
+//                startActivity(intent);
+
+                return false;
+            }
+        });
     }
 
 
