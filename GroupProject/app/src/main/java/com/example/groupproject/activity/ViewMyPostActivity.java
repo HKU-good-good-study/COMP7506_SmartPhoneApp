@@ -88,7 +88,9 @@ public class ViewMyPostActivity extends AppCompatActivity {
         latitude = Double.parseDouble(parts[0].trim());  // 将第一部分转换为double
         longitude = Double.parseDouble(parts[1].trim());  // 将第二部分转换为double
         position = getCity(this);
-        location.setText(position);
+        if(position==null){
+            location.setText(latitude+","+longitude);
+        }else {location.setText(position);}
 
         //set privateflag
         boolean privateFlag = clickedPost.getPublic();
@@ -131,6 +133,11 @@ public class ViewMyPostActivity extends AppCompatActivity {
                         };
                         current_user.deletePost(clickedPost.getId());
                         db.updateUser(databaseCallbackUpdateNumber,current_user.getUsername(),current_user);
+                        db.editPostToLocation(new DatabaseCallback(ViewMyPostActivity.this) {
+
+                            @Override public void run(List<Object> dataList) {} @Override public void successlistener(Boolean success) {}},
+                                String.format("%f,%f",latitude,longitude),
+                                clickedPost.getId(),false);
 
                     }
 

@@ -50,7 +50,7 @@ public class DatabaseController {
         collectionReference.whereEqualTo("location",location )
                 .get().addOnCompleteListener((OnCompleteListener<QuerySnapshot>) task -> {
                     if (task.isSuccessful()) {
-                       collectionReference.document(location).set(newlocation); //update Location
+                       collectionReference.document(newlocation.getLocation()).set(newlocation); //update Location
                        databaseCallback.successlistener(true);
                    }
                     databaseCallback.successlistener(false);

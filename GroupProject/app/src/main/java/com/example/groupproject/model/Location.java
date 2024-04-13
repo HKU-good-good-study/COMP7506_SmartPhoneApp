@@ -50,6 +50,14 @@ public class Location {
         this.posts = posts;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
     public void addPost(String postid) {this.posts.add(postid);}
 
     public void deletePost(String postid) {this.posts.remove(postid);}
