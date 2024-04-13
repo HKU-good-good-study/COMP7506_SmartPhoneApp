@@ -58,15 +58,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         public void run(List<Object> dataList) {
             System.out.println("!!!!!!!!!!!!!!!!!");
             System.out.println(dataList);
-//            postList = dataList;
-//            Post current_user = (User) dataList.get(0);
-//            current_username = current_user.getUsername();
+
             for (Object item : dataList) {
                 Post post_info = (Post) item;
                 String postid = post_info.getId();
+                Boolean ispublic = post_info.getPublic();
                 String location = post_info.getLocation();
 
-                if (location != null){
+                if (location != null && ispublic){
                     String[] latLong = location.split(",");
                     System.out.println(latLong[0]);
                     double latitude = Double.parseDouble(latLong[0]);
@@ -83,8 +82,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     if (addressList != null && !addressList.isEmpty()) {
                         Address address = addressList.get(0);
                         LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-                        System.out.println("********$$$$$$$$**********");
-                        System.out.println(latLng);
                         Marker marker = gMap.addMarker(new MarkerOptions().position(latLng).title("").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                         marker.setTag(postid);
                         gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
@@ -176,8 +173,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        googleMap.addMarker(new MarkerOptions().position(location).title("You"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location,12));
+
 
         gMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
