@@ -7,12 +7,15 @@ public class Location {
     private String latitude;
     private String city;
     private ArrayList<String> posts;
-    
+
+    private String location;
+    public Location(){}
     public Location(String longitude, String latitude, String city, ArrayList<String> posts){
         this.longitude = longitude;
         this.latitude = latitude;
         this.city = city;
         this.posts = posts;
+        this.location = this.latitude+","+this.longitude;
     }
 
     public String getLongitude() {

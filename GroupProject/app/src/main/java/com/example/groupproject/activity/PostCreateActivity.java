@@ -192,7 +192,7 @@ public class PostCreateActivity extends AppCompatActivity {
                                                     String.format("%f,%f",latitude,longitude),
                                                     null,
                                                     photoList,
-                                                    private_Only);
+                                                    !private_Only);
 
 //                                            currentpost.setUser(current_user.getUsername());
 //                                            String userText = userInputEditText.getText().toString();
@@ -226,7 +226,9 @@ public class PostCreateActivity extends AppCompatActivity {
                                                         };
                                                         current_user.addPost(currentpost.getId());
                                                         db.updateUser(databaseCallbackUser,current_user.getUsername(),current_user);
+//                                                        Toast.makeText(PostCreateActivity.this,"update location", Toast.LENGTH_LONG).show();
                                                         db.editPostToLocation(new DatabaseCallback(PostCreateActivity.this) {
+
                                                             @Override public void run(List<Object> dataList) {} @Override public void successlistener(Boolean success) {}},
                                                                 String.format("%f,%f",latitude,longitude),
                                                                 currentpost.getId(),

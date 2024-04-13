@@ -3,7 +3,9 @@ package com.example.groupproject.controller;
 import android.location.Address;
 import android.location.Geocoder;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.example.groupproject.activity.PostCreateActivity;
 import com.example.groupproject.model.Location;
 import com.example.groupproject.model.Post;
 import com.example.groupproject.model.User;
@@ -53,6 +55,7 @@ public class DatabaseController {
                    }
                     databaseCallback.successlistener(false);
                 });
+        Log.e("Create a location: ", "finish");
     }
 
     /**
@@ -206,6 +209,8 @@ public class DatabaseController {
     }
 
     public void updateLocation(DatabaseCallback databaseCallback, Location location) {
+        Log.e("updatePostLocation: ishere",location.getPosts().toString());
+
         updateData(databaseCallback, "Location", "location", location.getLatitude() + ","+location.getLongitude(), location);
     }
 
@@ -217,30 +222,41 @@ public class DatabaseController {
      */
     public void editPostToLocation (DatabaseCallback databaseCallback, String location, String postid, boolean add) {
         CollectionReference collectionReference = db.collection("Location");
+        Log.e("editPostLocation:location",location);
+
 
         collectionReference.document(location).get().addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) task -> {
-            if (task.isSuccessful() && task.getResult()!=null) {
+            if (task.isSuccessful() && task.getResult().toObject(Location.class)!=null) {
+
+
                 Location currentLocation = task.getResult().toObject(Location.class);
-                if (add)
+//                Log.e("editPostLocation:getresult",currentLocation.toString());
+                if (add) {
+
                     currentLocation.addPost(postid);
+                }
                 else
                     currentLocation.deletePost(postid);
+                Log.e("editPostLocation: ishere",currentLocation.toString());
 
                 updateLocation(databaseCallback, currentLocation);
             } else { // if record not found, create a new location with current postid
                 Geocoder geocoder = new Geocoder(databaseCallback.getContext(), Locale.getDefault());
-                Double lati = Double.parseDouble(location.split(",")[1]);
-                Double longit = Double.parseDouble(location.split(",")[0]);
+                Double lati = Double.parseDouble(location.split(",")[0]);
+                Double longit = Double.parseDouble(location.split(",")[1]);
                 ArrayList<String> posts = new ArrayList<String>() ;
                 posts.add(postid);
+                Log.e("editPostLocation: ",location);
                 try {
                     List<Address> address = geocoder.getFromLocation(lati,longit,1);
+                    Log.e("createlocation in edit1: ",location);
                     createLocation(databaseCallback,new Location(
                             location.split(",")[1],
                             location.split(",")[0],
                             address.get(0).getLocality(),
                             posts
                             ));
+                    Log.e("createlocation in edit: ",location);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -265,9 +281,11 @@ public class DatabaseController {
         task.get().addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask-> {
             boolean success = true;
             if (runningTask.isSuccessful()) {
+                Log.e("updateData:ishere",identifierValue);
                 for (QueryDocumentSnapshot document: runningTask.getResult())
                     temp.add(document.getData());
                 if (!temp.isEmpty()) { //The record needs to be updated is found
+
                     collectionReference.document(identifierValue).set(updateValue);
                 }
                 databaseCallback.successlistener(success);
