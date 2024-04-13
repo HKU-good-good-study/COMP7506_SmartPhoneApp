@@ -175,18 +175,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
 
 
-        gMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng point) {
-                // 创建一个AlertDialog.Builder对象
-                AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
-                builder.setTitle("Posts");
-
-                builder.setMessage("Postmessage");  // 设置自定义布局
-                builder.setPositiveButton("确定", null);  // 添加一个确定按钮
-                builder.show();  // 显示对话框
-            }
-        });
+//        gMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+//            @Override
+//            public void onMapClick(LatLng point) {
+//                // 创建一个AlertDialog.Builder对象
+//                AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
+//                builder.setTitle("Posts");
+//
+//                builder.setMessage("Postmessage");  // 设置自定义布局
+//                builder.setPositiveButton("确定", null);  // 添加一个确定按钮
+//                builder.show();  // 显示对话框
+//            }
+//        });
 
     }
 

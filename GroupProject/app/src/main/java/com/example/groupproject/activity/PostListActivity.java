@@ -3,8 +3,10 @@ package com.example.groupproject.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,6 +30,7 @@ public class PostListActivity extends AppCompatActivity {
     DatabaseCallback databaseCallbackPost = new DatabaseCallback(this) {
         @Override
         public void run(List<Object> dataList) { //get all posts
+//            Log.e("PostListActivity: ","dataList: " + dataList.toString());
             ArrayList<Post> temp = new ArrayList<>();
             for (Object item : dataList) {
                 temp.add((Post) item);
@@ -46,6 +49,7 @@ public class PostListActivity extends AppCompatActivity {
         @Override
         public void run(List<Object> dataList) {
             User current_user = (User) dataList.get(0);
+//            Log.e("PostListActivity: ","Post found: " + current_user.getUsername());
             title.setText("User Email:"+current_user.getEmail());
             db.getPosts(databaseCallbackPost,current_user.getUsername());
         }

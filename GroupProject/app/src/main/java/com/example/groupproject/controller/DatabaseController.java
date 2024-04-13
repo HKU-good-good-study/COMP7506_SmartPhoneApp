@@ -166,11 +166,11 @@ public class DatabaseController {
         List<Object> temp = new ArrayList<Object>();
         CollectionReference userCollectionReference = db.collection("User");
         CollectionReference postCollectionReference = db.collection("Post");
-        if (username != null) {
+        if (username != null ) {
             userCollectionReference.document(username).get().addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) runningTask -> {
                 if (runningTask.isSuccessful()) {
                     User user = runningTask.getResult().toObject(User.class);
-                    if (user != null && !user.getPostList().isEmpty()) { //if user if found, retrieve all posts belonged to this user:
+                    if (user != null && !user.getPostList().isEmpty()) { //if user is found, retrieve all posts belonged to this user:
                         postCollectionReference.whereIn(FieldPath.documentId(), user.getPostList())
                                 .get()
                                 .addOnCompleteListener((OnCompleteListener<QuerySnapshot>) subtask -> {
@@ -178,10 +178,12 @@ public class DatabaseController {
                                         for (QueryDocumentSnapshot document : subtask.getResult()) {
                                             temp.add(document.toObject(Post.class));
                                         }
-                                    }
-                                    databaseCallback.run(temp);
+                                        databaseCallback.run(temp);
+                                    }else{Log.e("Postessage in callback:",temp.toString());}
+
                                 });
-                    } else if (user!= null){
+
+                    }else if(user != null){
                         databaseCallback.run(temp);
                     }
                 }
