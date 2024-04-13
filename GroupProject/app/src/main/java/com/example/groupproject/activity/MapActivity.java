@@ -1,12 +1,11 @@
 package com.example.groupproject.activity;
 
-import static com.example.groupproject.R.*;
-import static com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY;
-
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,23 +23,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.groupproject.R;
 import com.example.groupproject.controller.DatabaseCallback;
+
+import com.example.groupproject.controller.DatabaseController;
 import com.example.groupproject.model.Post;
 import com.example.groupproject.model.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +51,67 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     Button back,post;
     Location currentLocation;
     FusedLocationProviderClient fusedLocationProviderClient;
+    DatabaseController dbcontroller = DatabaseController.getInstance();
+    List<Object> postList;
+    DatabaseCallback dbcallback = new DatabaseCallback(this) {
+        @Override
+        public void run(List<Object> dataList) {
+            System.out.println("!!!!!!!!!!!!!!!!!");
+            System.out.println(dataList);
+
+            for (Object item : dataList) {
+                Post post_info = (Post) item;
+                String postid = post_info.getId();
+                Boolean ispublic = post_info.getPublic();
+                String location = post_info.getLocation();
+
+                if (location != null && ispublic){
+                    String[] latLong = location.split(",");
+                    System.out.println(latLong[0]);
+                    double latitude = Double.parseDouble(latLong[0]);
+                    double longitude = Double.parseDouble(latLong[1]);
+
+                    List<Address> addressList = null;
+                    Geocoder geocoder = new Geocoder(MapActivity.this);
+
+                    try {
+                        addressList = geocoder.getFromLocation(latitude, longitude,1);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (addressList != null && !addressList.isEmpty()) {
+                        Address address = addressList.get(0);
+                        LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                        Marker marker = gMap.addMarker(new MarkerOptions().position(latLng).title("").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                        marker.setTag(postid);
+                        gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
+                    } else {
+                        Toast.makeText(MapActivity.this, "Location not found", Toast.LENGTH_SHORT).show();}
+                }
+            }
+        }
+        @Override
+        public void successlistener(Boolean success) {}
+    };
+
+    DatabaseCallback getDbcallbacksinglepost = new DatabaseCallback(this) {
+        @Override
+        public void run(List<Object> dataList) {
+            for (Object item : dataList) {
+                Post post = (Post) item;
+                System.out.println("******************");
+                System.out.println(post);
+
+                Intent ViewMyPost = new Intent(this.getContext(), ViewMyPostActivity.class);
+                // 将整个 Post 对象作为一个 "extra" 放入 Intent 中
+                ViewMyPost.putExtra("POST", post);
+                this.getContext().startActivity(ViewMyPost);
+            }
+        }
+
+        @Override
+        public void successlistener(Boolean success) {}
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,15 +141,39 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         getCurrentLocation();
 
-
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         gMap = googleMap;
+        dbcontroller.getPosts(dbcallback);
         LatLng location = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        googleMap.addMarker(new MarkerOptions().position(location).title("You"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location,12));
+        gMap.addMarker(new MarkerOptions().position(location).title("You"));
+        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location,120));
+        gMap.getUiSettings().setZoomControlsEnabled(true);
+
+        gMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                Object postid = marker.getTag();
+                System.out.println("post id:");
+                System.out.println(postid);
+                if (postid != null) {
+                    String postidstr = postid.toString();
+                    dbcontroller.getPost(getDbcallbacksinglepost, postidstr);
+                }
+
+//                String venueName = marker.getTitle();
+//                Intent intent = new Intent(MapActivity.this, NewActivity.class);
+//                intent.putExtra(VENUE_NAME, venueName);
+//                intent.putExtra(VENUE_ID, venueID);
+//                startActivity(intent);
+
+                return false;
+            }
+        });
+
+
 
         gMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -104,6 +189,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
 
     }
+
+
 
     public void getCurrentLocation() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -128,6 +215,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         });
     }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

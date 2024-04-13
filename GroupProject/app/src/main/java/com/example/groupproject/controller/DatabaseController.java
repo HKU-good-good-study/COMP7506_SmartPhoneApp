@@ -10,6 +10,7 @@ import com.example.groupproject.model.Location;
 import com.example.groupproject.model.Post;
 import com.example.groupproject.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -102,6 +103,7 @@ public class DatabaseController {
         });
     }
 
+
     /**
      * Fetch current userdata based on machineCode of current phone
      * Add the returned current user to a temporary list as return in callback function
@@ -119,7 +121,8 @@ public class DatabaseController {
                         if (runningTask.isSuccessful()) {
                             for (QueryDocumentSnapshot document : runningTask.getResult()) //fetch user from db
                                 temp.add(document.toObject(User.class));
-                            currentUser = (User)temp.get(0);
+                            if (!temp.isEmpty())
+                                currentUser = (User)temp.get(0);
                             databaseCallback.run(temp);
                         }
                     });
@@ -157,29 +160,50 @@ public class DatabaseController {
 
     /**
      * Return a list of post based on username, return in databaseCallback
+     * if username is null return all posts
      */
     public void getPosts(DatabaseCallback databaseCallback, String username) {
         List<Object> temp = new ArrayList<Object>();
         CollectionReference userCollectionReference = db.collection("User");
-        userCollectionReference.document(username).get().addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) runningTask-> {
-            if (runningTask.isSuccessful()) {
-                User user = runningTask.getResult().toObject(User.class);
-
-                CollectionReference postCollectionReference = db.collection("Post");
-                if (user != null){ //if user if found, retrieve all posts belonged to this user:
-                    postCollectionReference.whereIn(FieldPath.documentId(), user.getPostList())
-                            .get()
-                            .addOnCompleteListener( (OnCompleteListener<QuerySnapshot>) subtask-> {
-                                if (subtask.isSuccessful()) {
-                                    for (QueryDocumentSnapshot document : subtask.getResult()) {
-                                        temp.add(document.toObject(Post.class));
+        CollectionReference postCollectionReference = db.collection("Post");
+        if (username != null) {
+            userCollectionReference.document(username).get().addOnCompleteListener((OnCompleteListener<DocumentSnapshot>) runningTask -> {
+                if (runningTask.isSuccessful()) {
+                    User user = runningTask.getResult().toObject(User.class);
+                    if (user != null && !user.getPostList().isEmpty()) { //if user if found, retrieve all posts belonged to this user:
+                        postCollectionReference.whereIn(FieldPath.documentId(), user.getPostList())
+                                .get()
+                                .addOnCompleteListener((OnCompleteListener<QuerySnapshot>) subtask -> {
+                                    if (subtask.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : subtask.getResult()) {
+                                            temp.add(document.toObject(Post.class));
+                                        }
                                     }
-                                }
-                                databaseCallback.run(temp);
-                            });
+                                    databaseCallback.run(temp);
+                                });
+                    } else if (user!= null){
+                        databaseCallback.run(temp);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            postCollectionReference.get().addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask -> {
+                if( runningTask.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : runningTask.getResult()) {
+                        temp.add(document.toObject(Post.class));
+                    }
+                }
+                databaseCallback.run(temp);
+            });
+        }
+    }
+
+    /**
+     * Get all posts
+     * @param databaseCallback
+     */
+    public void getPosts(DatabaseCallback databaseCallback){
+        getPosts(databaseCallback, null);
     }
 
     public void getLocation (DatabaseCallback databaseCallback, String location) {
@@ -292,6 +316,24 @@ public class DatabaseController {
             }
         });
 
+    }
+
+    public void updatePieceData(DatabaseCallback databaseCallback, String objectType, String identifierField, String identifierValue, String updateField, String updateValue) {
+        CollectionReference collectionReference = db.collection(objectType);
+        List<Map> temp = new ArrayList<Map>();
+        Query task = collectionReference.whereEqualTo(identifierField, identifierValue);
+        task.get().addOnCompleteListener((OnCompleteListener<QuerySnapshot>) runningTask-> {
+            boolean success = false;
+            if (runningTask.isSuccessful()) {
+                for (QueryDocumentSnapshot document: runningTask.getResult())
+                    temp.add(document.getData());
+                if (!temp.isEmpty()) { //The record needs to be updated is found
+                    collectionReference.document(identifierValue).update(updateField, updateValue);
+                    success = true;
+                }
+                databaseCallback.successlistener(success);
+            }
+        });
     }
 
     public void deleteData(DatabaseCallback databaseCallback, String objectType, String identifierValue) {

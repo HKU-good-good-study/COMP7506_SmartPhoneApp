@@ -31,12 +31,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".activity.PostListActivity"/>
         <activity android:name=".activity.PostCreateActivity"/>
         <activity android:name=".activity.ViewMyPostActivity"/>
         <activity android:name=".activity.MapActivity"/>
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDa558OfhPXxA-sCT5g-Vt26nqD18LnbLA"/>
+        <activity android:name=".activity.LeaderboardActivity" />
+        <activity
+            android:name=".activity.LoginActivity"
+            android:exported="true"
+        />
+        <activity
+            android:name=".activity.SignUpActivity"
+            android:exported="true"
+        />
+
     </application>
 
 </manifest>
