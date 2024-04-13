@@ -1,10 +1,11 @@
 package com.example.groupproject.model;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Post {
+public class Post implements Serializable {
     private String id;
     private String user;
     private Boolean isPublic;

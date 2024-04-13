@@ -1,5 +1,7 @@
 package com.example.groupproject.activity;
 
+import static java.security.AccessController.getContext;
+
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -41,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button search;
     private Button admin;
 
+    private User currentUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         search = findViewById(R.id.Search_Button);
 
         mapButt.setOnClickListener(this);
+        profileButt.setOnClickListener(this);
         usernameDisplay = findViewById(R.id.user_textView);
 
         //TODO: porbably don't need result launcher since Main activity doesn't need any permission based operations,
@@ -78,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         DatabaseCallback databaseCallback = new DatabaseCallback(this) {
             @Override
             public void run(List<Object> dataList) { //Used for fetch user
-                User currentUser = (User) dataList.get(0);
+                currentUser = (User) dataList.get(0);
                 usernameDisplay.setText(currentUser.getUsername());
             }
 
@@ -87,10 +92,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (success) {
                     Toast.makeText(getContext(),"User is created", Toast.LENGTH_SHORT).show();
                 } else {
-                    Intent postCreate = new Intent(getContext(), PostListActivity.class);
-                    getContext().startActivity(postCreate);
-//                    Intent postCreate = new Intent(getContext(), PostCreateActivity.class);
-//                    getContext().startActivity(postCreate);
                     Toast.makeText(getContext(),"Username conflict!", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -132,7 +133,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (v.getId() == R.id.Map_Button) {
             this.startActivity(new Intent(this, MapActivity.class));
         } else if (id == R.id.profile_Button) {
-
+            Intent postList = new Intent(this, PostListActivity.class);
+            this.startActivity(postList);
         } else if (id == R.id.Search_Button) {
 
         } else if (id == R.id.Leaderboard_Button) {

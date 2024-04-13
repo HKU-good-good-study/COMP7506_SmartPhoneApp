@@ -33,6 +33,7 @@
         </activity>
         <activity android:name=".activity.PostListActivity"/>
         <activity android:name=".activity.PostCreateActivity"/>
+        <activity android:name=".activity.ViewMyPostActivity"/>
         <activity android:name=".activity.MapActivity"/>
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDa558OfhPXxA-sCT5g-Vt26nqD18LnbLA"/>
