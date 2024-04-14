@@ -1,46 +1,45 @@
-package com.example.groupproject.fragment;
+package com.example.groupproject.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.groupproject.R;
 import com.example.groupproject.adapter.UserAdapter;
 import com.example.groupproject.controller.DatabaseCallback;
 import com.example.groupproject.controller.DatabaseController;
-import com.example.groupproject.databinding.FragmentSearchBinding;
+import com.example.groupproject.databinding.ActivitySearchBinding;
 import com.example.groupproject.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchFragment extends Fragment {
-    private FragmentSearchBinding binding;
+public class SearchActivity extends AppCompatActivity implements UserAdapter.OnItemClickListener {
+    private ActivitySearchBinding binding;
     private DatabaseController db = DatabaseController.getInstance();
     private RecyclerView recyclerView;
     private SearchView searchView;
     private UserAdapter userAdapter;
-    public SearchFragment() {
-    }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentSearchBinding.inflate(inflater, container, false);
-        View view = binding.getRoot();
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivitySearchBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        recyclerView = view.findViewById(R.id.usersRV);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView = binding.usersRV;
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         userAdapter = new UserAdapter(new ArrayList<>());
         recyclerView.setAdapter(userAdapter);
-        searchView = view.findViewById(R.id.searchMenuSearchBar);
+
+        searchView = binding.searchBar;
+
+        userAdapter.setOnItemClickListener(this);
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -55,34 +54,45 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        return view;
+        binding.backButtonInSearch.setOnClickListener(v -> {
+            Intent intent = new Intent(SearchActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        });
     }
 
     private void searchUsers(String query) {
-        DatabaseCallback databaseCallback = new DatabaseCallback(getContext()) {
+        DatabaseCallback databaseCallback = new DatabaseCallback(this) {
             @Override
             public void run(List<Object> dataList) {
-                Log.d("searchUsers", "run: " + dataList.size());
                 List<User> users = new ArrayList<>();
                 for (Object data : dataList) {
-                    users.add((User) data);
+                    if (data != null) {
+                        users.add((User) data);
+                    }
                 }
-                if (!users.isEmpty()) {
-                    userAdapter.updateData(users);
-                }
+
+                userAdapter.updateData(users);
             }
 
             @Override
             public void successlistener(Boolean success) {
                 if (success) {
-                    Toast.makeText(getContext(),"Search completed successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SearchActivity.this, "Search completed successfully", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getContext(),"Search failed!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SearchActivity.this, "Search failed!", Toast.LENGTH_SHORT).show();
                 }
             }
         };
 
         // Fetch users based on the search query
-        db.getUser(databaseCallback, false, query);
+        db.searchUser(databaseCallback, query);
+    }
+
+    @Override
+    public void onItemClick(User user) {
+        Intent intent = new Intent(this, ProfileActivity.class);
+        intent.putExtra("USER", user.getUsername());
+        startActivity(intent);
     }
 }

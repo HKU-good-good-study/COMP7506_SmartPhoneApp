@@ -1,10 +1,13 @@
 package com.example.groupproject.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import com.example.groupproject.controller.DatabaseCallback;
 import com.example.groupproject.controller.DatabaseController;
@@ -17,6 +20,7 @@ import java.util.Objects;
 public class LoginActivity extends AppCompatActivity {
     ActivityLoginBinding binding;
     User currentUser;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,13 +28,15 @@ public class LoginActivity extends AppCompatActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
         binding.loginBtn.setOnClickListener(v -> {
-            String email = Objects.requireNonNull(binding.emailIdET.getText()).toString();
+            String username = Objects.requireNonNull(binding.usernameET.getText()).toString();
             String password = Objects.requireNonNull(binding.passwordET.getText()).toString();
 
-            if (email.isEmpty() || password.isEmpty()) {
-                binding.emailIdET.setError("Email or password is empty");
-                binding.passwordET.setError("Email or password is empty");
+            if (username.isEmpty() || password.isEmpty()) {
+                binding.usernameET.setError("Username or password is empty");
+                binding.passwordET.setError("Username or password is empty");
                 return;
             }
 
@@ -38,19 +44,48 @@ public class LoginActivity extends AppCompatActivity {
             db.getUser(new DatabaseCallback(this) {
                 @Override
                 public void run(List<Object> dataList) {
-                    currentUser = (User) dataList.get(0);
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+                    if (!dataList.isEmpty()) {
+                        User fetchedUser = (User) dataList.get(0);
+                        if (fetchedUser != null && fetchedUser.getPassword().equals(password)) {
+                            currentUser = fetchedUser;
+                            currentUser.setMachineCode(Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
+                            db.updateUser(new DatabaseCallback(LoginActivity.this) {
+                                @Override
+                                public void run(List<Object> dataList) {
+                                }
+
+                                @Override
+                                public void successlistener(Boolean success) {
+                                    if (success) {
+                                        Toast.makeText(LoginActivity.this, "Successfully logged in!", Toast.LENGTH_SHORT).show();
+
+                                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                                        editor.putString("username", currentUser.getUsername());
+                                        editor.apply();
+
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        finish();
+                                        startActivity(intent);
+                                    } else {
+                                        Toast.makeText(LoginActivity.this, "Failed to login!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            }, currentUser.getUsername(), currentUser);
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
                 @Override
                 public void successlistener(Boolean success) {
                     if (!success) {
-                        Toast.makeText(LoginActivity.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "Error occurred while fetching user data", Toast.LENGTH_SHORT).show();
                     }
                 }
-            }, false, email);
+            }, false, username);
 
         });
 

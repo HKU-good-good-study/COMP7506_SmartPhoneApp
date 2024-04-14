@@ -6,12 +6,12 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -24,30 +24,40 @@
         android:theme="@style/Theme.GroupProject"
         tools:targetApi="31">
         <activity
+            android:name=".activity.ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.SearchActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:exported="true"
+            android:label="@string/title_activity_settings" />
+        <activity
             android:name=".activity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activity.PostListActivity" />
+        <activity android:name=".activity.PostCreateActivity" />
+        <activity android:name=".activity.ViewMyPostActivity" />
+        <activity android:name=".activity.MapActivity" />
 
-        <activity android:name=".activity.PostListActivity"/>
-        <activity android:name=".activity.PostCreateActivity"/>
-        <activity android:name=".activity.ViewMyPostActivity"/>
-        <activity android:name=".activity.MapActivity"/>
-        <meta-data android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDa558OfhPXxA-sCT5g-Vt26nqD18LnbLA"/>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDa558OfhPXxA-sCT5g-Vt26nqD18LnbLA" />
+
         <activity android:name=".activity.LeaderboardActivity" />
         <activity
             android:name=".activity.LoginActivity"
-            android:exported="true"
-        />
+            android:exported="true" />
         <activity
             android:name=".activity.SignUpActivity"
-            android:exported="true"
-        />
-
+            android:exported="true" />
     </application>
 
 </manifest>

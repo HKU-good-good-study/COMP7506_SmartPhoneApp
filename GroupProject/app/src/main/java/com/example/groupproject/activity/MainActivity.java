@@ -2,37 +2,34 @@ package com.example.groupproject.activity;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 
-import android.view.View;
-import android.widget.Button;
-
-import androidx.fragment.app.Fragment;
-
-
-import com.example.groupproject.fragment.HomeFragment;
-import com.example.groupproject.fragment.ProfileFragment;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.groupproject.R;
 import com.example.groupproject.controller.DatabaseCallback;
 import com.example.groupproject.controller.DatabaseController;
 import com.example.groupproject.model.User;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
     DatabaseController db = DatabaseController.getInstance();
     ActivityResultLauncher<String[]> permissionResultLauncher;
     private boolean readPermission;
@@ -45,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button leaderboardButt;
     private Button profileButt;
     private Button search;
+    private Button settingButt;
     private Button admin;
 
     private User currentUser;
@@ -58,11 +56,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         leaderboardButt = findViewById(R.id.Leaderboard_Button);
         profileButt = findViewById(R.id.profile_Button);
         search = findViewById(R.id.Search_Button);
+        settingButt = findViewById(R.id.Settings_Button);
 
         mapButt.setOnClickListener(this);
         profileButt.setOnClickListener(this);
         leaderboardButt.setOnClickListener(this);
+        search.setOnClickListener(this);
+        settingButt.setOnClickListener(this);
         usernameDisplay = findViewById(R.id.user_textView);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        prefs.registerOnSharedPreferenceChangeListener(this);
 
         //TODO: porbably don't need result launcher since Main activity doesn't need any permission based operations,
         // However, activity uses these permissions should still check permissions before they use camera, internet, location, storage, etc.
@@ -83,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         requestPermissions();
 
         // User this callback to fetch current user or other operations with databaseController
-        DatabaseCallback databaseCallback = new DatabaseCallback(this) {
+        db.getCurrentUser(new DatabaseCallback(this) {
             @Override
             public void run(List<Object> dataList) { //Used for fetch user
                 if (dataList.isEmpty()) {
@@ -94,7 +98,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     currentUser = (User) dataList.get(0);
                     usernameDisplay.setText(currentUser.getUsername());
-
                 }
 
             }
@@ -107,28 +110,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Toast.makeText(getContext(),"Username conflict!", Toast.LENGTH_SHORT).show();
                 }
             }
-        };
-
-        db.getCurrentUser(databaseCallback, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
-
-
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            Fragment selectedFragment = null;
-            int id = item.getItemId();
-            if (id == R.id.navigation_home) {
-                // Open home fragment
-                selectedFragment = new HomeFragment();
-            } else if (id == R.id.navigation_profile) {
-                // Open profile fragment
-                selectedFragment = new ProfileFragment();
-            }
-
-            assert selectedFragment != null;
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
-            return true;
-        });
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+        }, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
     }
 
     private void requestPermissions(){
@@ -165,11 +147,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (v.getId() == R.id.Map_Button) {
             this.startActivity(new Intent(this, MapActivity.class));
         } else if (id == R.id.profile_Button) {
-            Intent postList = new Intent(this, PostListActivity.class);
+            Intent postList = new Intent(this, ProfileActivity.class);
             this.startActivity(postList);
-        } else if (id == R.id.Search_Button) {}
-        else if (id == R.id.Leaderboard_Button) {
+        } else if (id == R.id.Search_Button) {
+            this.startActivity(new Intent(this, SearchActivity.class));
+        } else if (id == R.id.Leaderboard_Button) {
             this.startActivity(new Intent(this, LeaderboardActivity.class));
+        } else if (id == R.id.Settings_Button) {
+            this.startActivity(new Intent(this, SettingsActivity.class));
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Unregister the listener
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        prefs.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String key) {
+        if (key.equals("username")) {
+            // Call recreate() to refresh the activity
+            recreate();
         }
     }
 }
