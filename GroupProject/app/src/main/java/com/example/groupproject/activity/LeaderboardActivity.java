@@ -2,6 +2,7 @@ package com.example.groupproject.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -32,11 +33,26 @@ public class LeaderboardActivity extends AppCompatActivity {
     TextView titlerank;
     String current_username;
     int current_ranking;
-    DatabaseCallback dbcallback = new DatabaseCallback(this) {
+
+    DatabaseCallback getDbcallbackuser =  new DatabaseCallback(this) {
         @Override
         public void run(List<Object> dataList) {
             User current_user = (User) dataList.get(0);
             current_username = current_user.getUsername();
+
+        }
+
+        @Override
+        public void successlistener(Boolean success) {}
+    };
+    DatabaseCallback dbcallback = new DatabaseCallback(this) {
+        @Override
+        public void run(List<Object> dataList) {
+            dbcontroller.getCurrentUser(getDbcallbackuser, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
+
+            System.out.println("!!!!!!!!!!!!! current user**************");
+            System.out.println(current_username);
+
             ArrayList<ArrayList<Object>> display_list = new ArrayList<>();
 
             for (Object item : dataList) {
@@ -48,8 +64,7 @@ public class LeaderboardActivity extends AppCompatActivity {
                 ArrayList<Object> display_item = new ArrayList<>();
                 display_item.add(username);
                 display_item.add(count);
-
-
+                
                 display_list.add(display_item);
             }
             
@@ -58,11 +73,25 @@ public class LeaderboardActivity extends AppCompatActivity {
 
 
             current_ranking = findIndex(display_list, current_username);
+            System.out.println("~~~~~~~~~~ current ranking **************");
+            System.out.println(current_ranking);
 
             LeaderboardAdapter adapter = new LeaderboardAdapter(getContext(), display_list);
             recyclerView = findViewById(R.id.leaderboardrecyclerView);
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             recyclerView.setAdapter(adapter);
+
+            titlerank = findViewById(R.id.currentranking);
+            String str_currentranking = String.valueOf(current_ranking + 1);
+            String header;
+
+            if (current_ranking == -1) {
+                header = "You have not posted anything. Start sharing moments of your life now!";
+            }
+            else {
+                header = "Congrats! You current rank is <" + str_currentranking + ">";
+            }
+            titlerank.setText(header);
         }
         @Override
         public void successlistener(Boolean success) {
@@ -74,17 +103,6 @@ public class LeaderboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_leaderboard);
         dbcontroller.getUser(dbcallback, true, null);
-
-        titlerank = findViewById(R.id.currentranking);
-        String str_currentranking = String.valueOf(current_ranking + 1);
-        String header;
-        if (current_ranking == -1) {
-            header = "You have not posted anything. Start sharing moments of your life now!";
-        }
-        else {
-            header = "Congrats! You current rank is <" + str_currentranking + ">";
-        }
-        titlerank.setText(header);
 
         backbtn = findViewById(R.id.leaderboardbutton);
         backbtn.setOnClickListener(new View.OnClickListener() {
