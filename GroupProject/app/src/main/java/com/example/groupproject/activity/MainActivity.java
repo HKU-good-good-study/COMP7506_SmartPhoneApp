@@ -1,25 +1,28 @@
 package com.example.groupproject.activity;
 
-import static java.security.AccessController.getContext;
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.PackageManagerCompat;
 
-import android.content.Intent;
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.os.Bundle;
-import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+
+
+import com.example.groupproject.fragment.HomeFragment;
+import com.example.groupproject.fragment.ProfileFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.groupproject.R;
 import com.example.groupproject.controller.DatabaseCallback;
 import com.example.groupproject.controller.DatabaseController;
@@ -36,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean locationPermission;
     private boolean cameraPermission;
     private TextView usernameDisplay;
+    private BottomNavigationView bottomNavigationView;
 
     private Button mapButt;
     private Button leaderboardButt;
@@ -57,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mapButt.setOnClickListener(this);
         profileButt.setOnClickListener(this);
+        leaderboardButt.setOnClickListener(this);
         usernameDisplay = findViewById(R.id.user_textView);
 
         //TODO: porbably don't need result launcher since Main activity doesn't need any permission based operations,
@@ -81,14 +86,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         requestPermissions();
 
-
-
         // User this callback to fetch current user or other operations with databaseController
         DatabaseCallback databaseCallback = new DatabaseCallback(this) {
             @Override
             public void run(List<Object> dataList) { //Used for fetch user
-                currentUser = (User) dataList.get(0);
-                usernameDisplay.setText(currentUser.getUsername());
+                if (dataList.isEmpty()) {
+                    // Start login activity
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    currentUser = (User) dataList.get(0);
+                    usernameDisplay.setText(currentUser.getUsername());
+
+                }
+
             }
 
             @Override
@@ -105,6 +117,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        db.createUser(databaseCallback, new User("111",new ArrayList<>(), "123.com", false, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID)));
 //        db.createPost(databaseCallback, new Post("111","somewhere", new HashMap<>(),null, true));
 //        db.getCurrentUser(databaseCallback, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
+
+        db.getCurrentUser(databaseCallback, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
+
+
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            Fragment selectedFragment = null;
+            int id = item.getItemId();
+            if (id == R.id.navigation_home) {
+                // Open home fragment
+                selectedFragment = new HomeFragment();
+            } else if (id == R.id.navigation_profile) {
+                // Open profile fragment
+                selectedFragment = new ProfileFragment();
+            }
+
+            assert selectedFragment != null;
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+            return true;
+        });
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+
     }
 
     private void requestPermissions(){
@@ -143,12 +177,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else if (id == R.id.profile_Button) {
             Intent postList = new Intent(this, PostListActivity.class);
             this.startActivity(postList);
-        } else if (id == R.id.Search_Button) {
-
-        } else if (id == R.id.Leaderboard_Button) {
-
-        } else if( id == R.id.admin_Button) {
-
+        } else if (id == R.id.Search_Button) {}
+        else if (id == R.id.Leaderboard_Button) {
+            this.startActivity(new Intent(this, LeaderboardActivity.class));
         }
     }
 }
