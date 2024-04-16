@@ -20,6 +20,7 @@ public class ProfileActivity extends AppCompatActivity {
     DatabaseController db = DatabaseController.getInstance();
     private User currentUser = null;
     private User profileUser = null;
+    private Integer postCount = 0;
 
     private boolean isEditing = false;
 
@@ -67,14 +68,48 @@ public class ProfileActivity extends AppCompatActivity {
                         binding.usernameProfile.setText(profileUser.getUsername());
                         binding.emailProfile.setText(profileUser.getEmail());
                         binding.editProfile.setVisibility(View.GONE);
+                        db.getPosts(new DatabaseCallback(ProfileActivity.this) {
+                            @Override
+                            public void run(List<Object> dataList) {
+                                if (!dataList.isEmpty()) {
+                                    postCount = dataList.size();
+                                    binding.posts.setText(postCount.toString());
+                                } else {
+                                    binding.posts.setText("0");
+                                }
+                            }
+
+                            @Override
+                            public void successlistener(Boolean success) {
+
+                            }
+                        }, profileUser.getUsername());
                     } else if (currentUser != null) {
                         binding.usernameProfile.setText(currentUser.getUsername());
                         binding.emailProfile.setText(currentUser.getEmail());
                         binding.editProfile.setVisibility(View.VISIBLE);
+
+                        db.getPosts(new DatabaseCallback(ProfileActivity.this) {
+                            @Override
+                            public void run(List<Object> dataList) {
+                                if (!dataList.isEmpty()) {
+                                    postCount = dataList.size();
+                                    binding.posts.setText(postCount.toString());
+                                } else {
+                                    binding.posts.setText("0");
+                                }
+                            }
+
+                            @Override
+                            public void successlistener(Boolean success) {
+
+                            }
+                        }, currentUser.getUsername());
                     } else {
                         binding.usernameProfile.setText("Username");
                         binding.emailProfile.setText("Email");
                         binding.editProfile.setVisibility(View.GONE);
+                        binding.posts.setText("0");
                     }
                 } else {
                     Toast.makeText(ProfileActivity.this, "Failed to fetch user data!", Toast.LENGTH_SHORT).show();
