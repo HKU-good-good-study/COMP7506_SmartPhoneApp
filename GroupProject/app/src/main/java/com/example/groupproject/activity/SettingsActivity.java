@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.groupproject.controller.DatabaseCallback;
 import com.example.groupproject.controller.DatabaseController;
-import com.example.groupproject.databinding.SettingsActivityBinding;
+import com.example.groupproject.databinding.ActivitySettingsBinding;
 import com.example.groupproject.model.User;
 
 import java.util.List;
@@ -16,13 +16,13 @@ import java.util.List;
 public class SettingsActivity extends AppCompatActivity {
 
     private User user;
-    SettingsActivityBinding binding;
+    ActivitySettingsBinding binding;
     DatabaseController db = DatabaseController.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = SettingsActivityBinding.inflate(getLayoutInflater());
+        binding = ActivitySettingsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         user = db.getCurrentUser();
