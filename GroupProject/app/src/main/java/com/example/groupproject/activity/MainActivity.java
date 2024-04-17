@@ -66,6 +66,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //TODO: porbably don't need result launcher since Main activity doesn't need any permission based operations,
         // However, activity uses these permissions should still check permissions before they use camera, internet, location, storage, etc.
+
+//        Intent leaderboardCreate = new Intent(this, LeaderboardActivity.class);
+//        this.startActivity(leaderboardCreate);
+
         permissionResultLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
             @Override
             public void onActivityResult(Map<String, Boolean> o) {
@@ -109,6 +113,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
 
+
+//        db.createUser(databaseCallback, new User("111",new ArrayList<>(), "123.com", false, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID)));
+//        db.createPost(databaseCallback, new Post("111","somewhere", new HashMap<>(),null, true));
+//        db.getCurrentUser(databaseCallback, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
+
         db.getCurrentUser(databaseCallback, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 
 
@@ -129,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return true;
         });
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+
     }
 
     private void requestPermissions(){
