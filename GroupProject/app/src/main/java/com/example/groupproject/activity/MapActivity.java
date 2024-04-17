@@ -2,11 +2,14 @@ package com.example.groupproject.activity;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -44,13 +47,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
     private GoogleMap gMap;
     private final int REQUEST_CODE = 101;
     SupportMapFragment mapFragment;
-    Button back,post;
+    Button back, post;
     Location currentLocation;
     FusedLocationProviderClient fusedLocationProviderClient;
+    private LocationManager locationManager;
     DatabaseController dbcontroller = DatabaseController.getInstance();
     List<Object> postList;
     DatabaseCallback dbcallback = new DatabaseCallback(this) {
@@ -65,7 +69,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Boolean ispublic = post_info.getPublic();
                 String location = post_info.getLocation();
 
-                if (location != null && ispublic){
+                if (location != null && ispublic) {
                     String[] latLong = location.split(",");
                     System.out.println(latLong[0]);
                     double latitude = Double.parseDouble(latLong[0]);
@@ -75,7 +79,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     Geocoder geocoder = new Geocoder(MapActivity.this);
 
                     try {
-                        addressList = geocoder.getFromLocation(latitude, longitude,1);
+                        addressList = geocoder.getFromLocation(latitude, longitude, 1);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -86,12 +90,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         marker.setTag(postid);
                         gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
                     } else {
-                        Toast.makeText(MapActivity.this, "Location not found", Toast.LENGTH_SHORT).show();}
+                        Toast.makeText(MapActivity.this, "Location not found", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         }
+
         @Override
-        public void successlistener(Boolean success) {}
+        public void successlistener(Boolean success) {
+        }
     };
 
     DatabaseCallback getDbcallbacksinglepost = new DatabaseCallback(this) {
@@ -110,7 +117,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         @Override
-        public void successlistener(Boolean success) {}
+        public void successlistener(Boolean success) {
+        }
     };
 
     @Override
@@ -149,7 +157,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         dbcontroller.getPosts(dbcallback);
         LatLng location = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
         gMap.addMarker(new MarkerOptions().position(location).title("You"));
-        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location,120));
+        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 12));
         gMap.getUiSettings().setZoomControlsEnabled(true);
 
         gMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -162,37 +170,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     String postidstr = postid.toString();
                     dbcontroller.getPost(getDbcallbacksinglepost, postidstr);
                 }
-
-//                String venueName = marker.getTitle();
-//                Intent intent = new Intent(MapActivity.this, NewActivity.class);
-//                intent.putExtra(VENUE_NAME, venueName);
-//                intent.putExtra(VENUE_ID, venueID);
-//                startActivity(intent);
-
                 return false;
             }
         });
-
-
-
-//        gMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-//            @Override
-//            public void onMapClick(LatLng point) {
-//                // 创建一个AlertDialog.Builder对象
-//                AlertDialog.Builder builder = new AlertDialog.Builder(MapActivity.this);
-//                builder.setTitle("Posts");
-//
-//                builder.setMessage("Postmessage");  // 设置自定义布局
-//                builder.setPositiveButton("确定", null);  // 添加一个确定按钮
-//                builder.show();  // 显示对话框
-//            }
-//        });
-
     }
 
 
-
     public void getCurrentLocation() {
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {}
+
+        locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, MapActivity.this);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
@@ -228,6 +216,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 Toast.makeText(this, String.valueOf(grantResults[0]), Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+        currentLocation = location;
+        Log.e("Map activity:","location is " + String.valueOf(location.getLatitude()) + " " + String.valueOf(location.getLongitude()));
+
     }
 }
 
