@@ -49,6 +49,7 @@ import java.util.List;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
     private GoogleMap gMap;
+    private boolean isMapReady = false;
     private final int REQUEST_CODE = 101;
     SupportMapFragment mapFragment;
     Button back, post;
@@ -88,7 +89,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
                         Marker marker = gMap.addMarker(new MarkerOptions().position(latLng).title("").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
                         marker.setTag(postid);
-                        gMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
                     } else {
                         Toast.makeText(MapActivity.this, "Location not found", Toast.LENGTH_SHORT).show();
                     }
@@ -154,25 +154,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         gMap = googleMap;
-        dbcontroller.getPosts(dbcallback);
-        LatLng location = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        gMap.addMarker(new MarkerOptions().position(location).title("You"));
-        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 12));
-        gMap.getUiSettings().setZoomControlsEnabled(true);
+        isMapReady = true;
 
-        gMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                Object postid = marker.getTag();
-                System.out.println("post id:");
-                System.out.println(postid);
-                if (postid != null) {
-                    String postidstr = postid.toString();
-                    dbcontroller.getPost(getDbcallbacksinglepost, postidstr);
-                }
-                return false;
-            }
-        });
     }
 
 
@@ -180,7 +163,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {}
 
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, MapActivity.this);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, MapActivity.this);
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
@@ -222,7 +205,28 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onLocationChanged(@NonNull Location location) {
         currentLocation = location;
         Log.e("Map activity:","location is " + String.valueOf(location.getLatitude()) + " " + String.valueOf(location.getLongitude()));
+        if(isMapReady) {
+            dbcontroller.getPosts(dbcallback);
+            LatLng geolocation = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            gMap.addMarker(new MarkerOptions().position(geolocation).title("You"));
+            gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(geolocation, 12));
+            gMap.getUiSettings().setZoomControlsEnabled(true);
 
+            gMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    Object postid = marker.getTag();
+                    System.out.println("post id:");
+                    System.out.println(postid);
+                    if (postid != null) {
+                        String postidstr = postid.toString();
+                        dbcontroller.getPost(getDbcallbacksinglepost, postidstr);
+                    }
+                    return false;
+                }
+            });
+            mapFragment.getMapAsync(MapActivity.this);
+        }
     }
 }
 
