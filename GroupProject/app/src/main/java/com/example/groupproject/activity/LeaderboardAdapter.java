@@ -1,6 +1,11 @@
 package com.example.groupproject.activity;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,9 +40,22 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
     @Override
     public void onBindViewHolder(@NonNull LeaderboardAdapter.ViewHolder holder, int position) {
         System.out.println("Successfully get the items in adapter onBind!!!!!!");
-        this.dataList.forEach(System.out::println);
-        holder.username.setText(this.dataList.get(position).get(0).toString());
-        holder.postcount.setText(this.dataList.get(position).get(1).toString());
+//        this.dataList.forEach(System.out::println);
+
+        String username_str = this.dataList.get(position).get(0).toString();
+        SpannableStringBuilder username = new SpannableStringBuilder(username_str);
+        int uend = username_str.length();
+//        username.setSpan(new android.text.style.StyleSpan(Typeface.ITALIC), 0, uend, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        username.setSpan(new android.text.style.RelativeSizeSpan(1.5f), 0, uend, 0);
+//        username.setSpan(new ForegroundColorSpan(Color.parseColor("#E8B4D0")), 0, uend,0);
+        holder.username.setText(username);
+
+        String postcount_str = this.dataList.get(position).get(1).toString();
+        SpannableStringBuilder postcount = new SpannableStringBuilder(postcount_str);
+        int pend = postcount_str.length();
+        postcount.setSpan(new android.text.style.StyleSpan(Typeface.BOLD), 0, pend, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        postcount.setSpan(new android.text.style.RelativeSizeSpan(1.8f), 0, pend, 0);
+        holder.postcount.setText(postcount);
     }
 
     @Override

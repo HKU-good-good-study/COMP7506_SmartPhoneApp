@@ -70,6 +70,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //TODO: porbably don't need result launcher since Main activity doesn't need any permission based operations,
         // However, activity uses these permissions should still check permissions before they use camera, internet, location, storage, etc.
+
+//        Intent leaderboardCreate = new Intent(this, LeaderboardActivity.class);
+//        this.startActivity(leaderboardCreate);
+
         permissionResultLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
             @Override
             public void onActivityResult(Map<String, Boolean> o) {
