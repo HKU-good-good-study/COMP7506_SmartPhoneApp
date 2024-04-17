@@ -113,6 +113,7 @@ public class PostCreateActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //get the bitmap for the picture
+                v.setBackgroundResource(R.drawable.item_background);
                 checkPermission(v.getContext());
             }
 
@@ -192,7 +193,7 @@ public class PostCreateActivity extends AppCompatActivity {
                                                     String.format("%f,%f",latitude,longitude),
                                                     null,
                                                     photoList,
-                                                    private_Only);
+                                                    !private_Only);
 
 //                                            currentpost.setUser(current_user.getUsername());
 //                                            String userText = userInputEditText.getText().toString();
@@ -203,7 +204,7 @@ public class PostCreateActivity extends AppCompatActivity {
 //                                            currentpost.setId(UUID.randomUUID().toString());
 
 
-                                            Toast.makeText(PostCreateActivity.this, "now is in confirm", Toast.LENGTH_SHORT).show();
+//                                            Toast.makeText(PostCreateActivity.this, "now is in confirm", Toast.LENGTH_SHORT).show();
                                             DatabaseCallback databaseCallback = new DatabaseCallback(PostCreateActivity.this) {
                                                 @Override
                                                 public void run(List<Object> dataList) {}
@@ -226,7 +227,9 @@ public class PostCreateActivity extends AppCompatActivity {
                                                         };
                                                         current_user.addPost(currentpost.getId());
                                                         db.updateUser(databaseCallbackUser,current_user.getUsername(),current_user);
+//                                                        Toast.makeText(PostCreateActivity.this,"update location", Toast.LENGTH_LONG).show();
                                                         db.editPostToLocation(new DatabaseCallback(PostCreateActivity.this) {
+
                                                             @Override public void run(List<Object> dataList) {} @Override public void successlistener(Boolean success) {}},
                                                                 String.format("%f,%f",latitude,longitude),
                                                                 currentpost.getId(),
