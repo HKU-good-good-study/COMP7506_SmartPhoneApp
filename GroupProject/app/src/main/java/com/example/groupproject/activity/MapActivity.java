@@ -226,6 +226,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
             });
             mapFragment.getMapAsync(MapActivity.this);
+            locationManager.removeUpdates(MapActivity.this);
         }
     }
 }
