@@ -113,6 +113,7 @@ public class PostCreateActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //get the bitmap for the picture
+                v.setBackgroundResource(R.drawable.item_background);
                 checkPermission(v.getContext());
             }
 
@@ -203,7 +204,7 @@ public class PostCreateActivity extends AppCompatActivity {
 //                                            currentpost.setId(UUID.randomUUID().toString());
 
 
-                                            Toast.makeText(PostCreateActivity.this, "now is in confirm", Toast.LENGTH_SHORT).show();
+//                                            Toast.makeText(PostCreateActivity.this, "now is in confirm", Toast.LENGTH_SHORT).show();
                                             DatabaseCallback databaseCallback = new DatabaseCallback(PostCreateActivity.this) {
                                                 @Override
                                                 public void run(List<Object> dataList) {}
