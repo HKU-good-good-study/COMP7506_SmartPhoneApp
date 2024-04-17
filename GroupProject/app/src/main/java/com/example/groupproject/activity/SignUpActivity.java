@@ -11,7 +11,6 @@ import com.example.groupproject.controller.DatabaseCallback;
 import com.example.groupproject.controller.DatabaseController;
 import com.example.groupproject.databinding.ActivitySignUpBinding;
 import com.example.groupproject.model.User;
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,21 +38,22 @@ public class SignUpActivity extends AppCompatActivity {
             }
 
             // Create a new User object
-            User newUser = new User(username, new ArrayList<>(), email, false, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
+            User newUser = new User(username, password, new ArrayList<>(), email, false, Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
 
             // Create a DatabaseCallback
             DatabaseCallback databaseCallback = new DatabaseCallback(this) {
                 @Override
                 public void run(List<Object> dataList) {
-                    Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+
                 }
 
                 @Override
                 public void successlistener(Boolean success) {
                     if (success) {
                         Toast.makeText(getContext(),"User is created", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                        startActivity(intent);
+                        finish();
                     } else {
                         Toast.makeText(getContext(),"Username conflict!", Toast.LENGTH_SHORT).show();
                     }
